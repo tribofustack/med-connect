@@ -7,6 +7,10 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { MedicalModule } from './medical/medical.module';
 import { ReportModule } from './report/report.module';
 
+import { User } from 'src/user/entities/user/user';
+import { Report } from 'src/report/entities/report/report';
+import { MedicalRecord } from 'src/medical/entities/medical-record/medical-record';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,12 +20,16 @@ import { ReportModule } from './report/report.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('DATABASE_HOST'),
-        port: configService.get<number>('DATABASE_PORT'),
-        username: configService.get<string>('DATABASE_USERNAME'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        database: configService.get<string>('DATABASE_NAME'),
-        autoLoadEntities: true,
+        host: 'db', // docker postgres service
+        port: 5432,
+        username: 'postgres',
+        password: 'postgres',
+        database: 'postgres',
+        entities: [
+          User,
+          Report,
+          MedicalRecord,
+        ],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
