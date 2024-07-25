@@ -1,35 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Medical } from './medical.entity';
+import { CreateMedicalDto } from './dto/create-medical.dto';
+import { UpdateMedicalDto } from './dto/update-medical.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class MedicalService {
-  private medicalRecords = [];
+  constructor(
+    @InjectRepository(Medical)
+    private medicalRepository: Repository<Medical>,
+  ) {}
 
-  createMedicalRecord(data: any): any {
-    // Implement medical record creation logic
-    this.medicalRecords.push(data);
-    return { message: 'Medical record created successfully', record: data };
+  async create(createMedicalDto: CreateMedicalDto): Promise<Medical> {
+    const hashedPassword = await bcrypt.hash(createMedicalDto.password, 10);
+    const medical = this.medicalRepository.create({
+      ...createMedicalDto,
+      password: hashedPassword,
+    });
+    return this.medicalRepository.save(medical);
   }
 
-  getMedicalRecords(userId: string): any {
-    // Implement get medical records logic
-    return this.medicalRecords.filter((record) => record.userId === userId);
+  async findAll(): Promise<Medical[]> {
+    return this.medicalRepository.find();
   }
 
-  updateMedicalRecord(id: string, data: any): any {
-    // Implement update medical record logic
-    const recordIndex = this.medicalRecords.findIndex(
-      (record) => record.id === id,
-    );
-    if (recordIndex > -1) {
-      this.medicalRecords[recordIndex] = {
-        ...this.medicalRecords[recordIndex],
-        ...data,
-      };
-      return {
-        message: 'Medical record updated successfully',
-        record: this.medicalRecords[recordIndex],
-      };
+  async findOne(id: number): Promise<Medical> {
+    const medical = await this.medicalRepository.findOne(id);
+    if (!medical) {
+      throw new NotFoundException('Medical professional not found');
     }
-    return { message: 'Medical record not found' };
+    return medical;
+  }
+
+  async update(
+    id: number,
+    updateMedicalDto: UpdateMedicalDto,
+  ): Promise<Medical> {
+    const medical = await this.medicalRepository.preload({
+      id,
+      ...updateMedicalDto,
+    });
+    if (!medical) {
+      throw new NotFoundException('Medical professional not found');
+    }
+    return this.medicalRepository.save(medical);
+  }
+
+  async changePassword(
+    id: number,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const medical = await this.findOne(id);
+    const passwordMatch = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      medical.password,
+    );
+    if (!passwordMatch) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+    medical.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
+    await this.medicalRepository.save(medical);
+  }
+
+  async updateBusinessHours(
+    id: number,
+    updateBusinessHoursDto: UpdateBusinessHoursDto,
+  ): Promise<Medical> {
+    const medical = await this.findOne(id);
+    medical.business_hours = updateBusinessHoursDto.business_hours;
+    return this.medicalRepository.save(medical);
   }
 }
