@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class User {
+export class Medical {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -15,16 +15,22 @@ export class User {
   name: string;
 
   @Column()
-  last_name: string;
+  CRM: string; // hash
+
+  @Column()
+  address_id: number;
 
   @Column()
   email: string;
 
-  @Column()
-  cpf: string; // hash
+  @Column('simple-array')
+  roles: string[];
 
   @Column()
   password: string; // hash
+
+  @Column('jsonb')
+  business_hours: any;
 
   @CreateDateColumn()
   created_at: Date;
@@ -38,6 +44,6 @@ export class User {
   @Column()
   status: string;
 
-  @Column({ nullable: true })
-  address_id: number;
+  @Column('float')
+  rating: number;
 }

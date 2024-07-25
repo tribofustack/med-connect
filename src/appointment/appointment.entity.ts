@@ -1,3 +1,4 @@
+import { Medical } from 'src/medical/medical.entity';
 import { User } from 'src/user/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
@@ -6,15 +7,36 @@ export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
-  doctor: User;
+  @Column()
+  title: string;
 
-  @ManyToOne(() => User)
+  @Column()
+  description: string;
+
+  @Column()
+  status: string;
+
+  @Column('jsonb')
+  event: {
+    start_date: Date;
+    end_date: Date;
+    attachments: { file_url: string; file_id: string }[];
+    creator: { id: number; email: string; displayName: string };
+    organizer: { id: number; email: string; displayName: string };
+  };
+
+  @Column('jsonb')
+  meet: {
+    host: string;
+    code: string;
+    name: string;
+    url: string;
+    artifact: { transcription: string; record: string };
+  };
+
+  @ManyToOne(() => Medical, (medical) => medical.id)
+  doctor: Medical;
+
+  @ManyToOne(() => User, (user) => user.id)
   patient: User;
-
-  @Column()
-  date: Date;
-
-  @Column()
-  status: string; // e.g., 'pending', 'accepted', 'rejected'
 }

@@ -8,7 +8,7 @@ import { MedicalModule } from './medical/medical.module';
 import { ReportModule } from './report/report.module';
 import { User } from './user/user.entity';
 import { Report } from './report/report.entity';
-import { MedicalRecord } from './medical/medical-record.entity';
+import { Medical } from './medical/medical.entity';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { MedicalRecord } from './medical/medical-record.entity';
         username: 'postgres',
         password: 'postgres',
         database: 'postgres',
-        entities: [User, Report, MedicalRecord],
+        entities: [User, Report, Medical],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
