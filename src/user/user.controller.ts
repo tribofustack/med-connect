@@ -16,9 +16,8 @@ import { UpdateRecordDto } from './dto/update-record.dto';
 import { CreateAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
 import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 import { User } from './user.entity';
-import { Report } from 'src/report/report.entity';
-import { Appointment } from 'src/appointment/appointment.entity';
 import { Medical } from 'src/medical/medical.entity';
+import { Appointment } from 'src/appointment/appointment.entity';
 
 @Controller('users')
 export class UserController {
@@ -59,7 +58,7 @@ export class UserController {
   createRecord(
     @Param('id') id: number,
     @Body() createRecordDto: CreateRecordDto,
-  ): Promise<Report> {
+  ): Promise<Medical> {
     return this.userService.createRecord(id, createRecordDto);
   }
 
@@ -68,7 +67,7 @@ export class UserController {
     @Param('userId') userId: number,
     @Param('recordId') recordId: number,
     @Body() updateRecordDto: UpdateRecordDto,
-  ): Promise<Report> {
+  ): Promise<Medical> {
     return this.userService.updateRecord(recordId, updateRecordDto);
   }
 
@@ -77,7 +76,7 @@ export class UserController {
     @Param('userId') userId: number,
     @Param('recordId') recordId: number,
     @Body() file: any,
-  ): Promise<Report> {
+  ): Promise<Medical> {
     return this.userService.uploadDocument(recordId, file);
   }
 
@@ -85,7 +84,7 @@ export class UserController {
   readRecord(
     @Param('userId') userId: number,
     @Param('recordId') recordId: number,
-  ): Promise<Report> {
+  ): Promise<Medical> {
     return this.userService.readRecord(recordId);
   }
 
@@ -102,7 +101,7 @@ export class UserController {
     @Param('userId') userId: number,
     @Param('recordId') recordId: number,
     @Body() roles: string[],
-  ): Promise<Report> {
+  ): Promise<Medical> {
     return this.userService.manageRecordPermissions(recordId, roles);
   }
 
@@ -140,7 +139,7 @@ export class UserController {
   }
 
   @Get('doctors')
-  findDoctors(): Promise<Medical[]> {
+  findDoctors(): Promise<User[]> {
     return this.userService.findDoctors();
   }
 
@@ -153,7 +152,7 @@ export class UserController {
   rateDoctor(
     @Param('doctorId') doctorId: number,
     @Body('rating') rating: number,
-  ): Promise<Medical> {
+  ): Promise<User> {
     return this.userService.rateDoctor(doctorId, rating);
   }
 }

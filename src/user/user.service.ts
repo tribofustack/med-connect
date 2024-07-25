@@ -14,7 +14,6 @@ import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { Medical } from 'src/medical/medical.entity';
 import { Appointment } from 'src/appointment/appointment.entity';
-import { Report } from 'src/report/report.entity';
 import { CreateAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
 import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 
@@ -23,8 +22,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Report)
-    private reportRepository: Repository<Report>,
     @InjectRepository(Appointment)
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(Medical)
@@ -82,52 +79,52 @@ export class UserService {
   async createRecord(
     userId: number,
     createRecordDto: CreateRecordDto,
-  ): Promise<Report> {
+  ): Promise<Medical> {
     const user = await this.findOne(userId);
-    const report = this.reportRepository.create({
+    const medical = this.medicalRepository.create({
       ...createRecordDto,
       patient: user,
     });
-    return this.reportRepository.save(report);
+    return this.medicalRepository.save(medical);
   }
 
-  async readRecord(recordId: number): Promise<Report> {
-    const report = await this.reportRepository.findOne({
+  async readRecord(recordId: number): Promise<Medical> {
+    const medical = await this.medicalRepository.findOne({
       where: { id: recordId },
     });
-    if (!report) {
+    if (!medical) {
       throw new NotFoundException('Record not found');
     }
-    return report;
+    return medical;
   }
 
   async updateRecord(
     recordId: number,
     updateRecordDto: UpdateRecordDto,
-  ): Promise<Report> {
-    const report = await this.reportRepository.preload({
+  ): Promise<Medical> {
+    const medical = await this.medicalRepository.preload({
       id: recordId,
       ...updateRecordDto,
     });
-    if (!report) {
+    if (!medical) {
       throw new NotFoundException('Record not found');
     }
-    return this.reportRepository.save(report);
+    return this.medicalRepository.save(medical);
   }
 
-  async uploadDocument(recordId: number, file: any): Promise<Report> {
-    const report = await this.reportRepository.findOne({
+  async uploadDocument(recordId: number, file: any): Promise<Medical> {
+    const medical = await this.medicalRepository.findOne({
       where: { id: recordId },
     });
-    if (!report) {
+    if (!medical) {
       throw new NotFoundException('Record not found');
     }
-    report.metadata = { ...report.metadata, ...file };
-    return this.reportRepository.save(report);
+    medical.metadata = { ...medical.metadata, ...file };
+    return this.medicalRepository.save(medical);
   }
 
   async deleteRecord(recordId: number): Promise<void> {
-    const result = await this.reportRepository.delete(recordId);
+    const result = await this.medicalRepository.delete(recordId);
     if (result.affected === 0) {
       throw new NotFoundException('Record not found');
     }
@@ -136,21 +133,21 @@ export class UserService {
   async manageRecordPermissions(
     recordId: number,
     roles: string[],
-  ): Promise<Report> {
-    const report = await this.reportRepository.findOne({
+  ): Promise<Medical> {
+    const medical = await this.medicalRepository.findOne({
       where: { id: recordId },
     });
-    if (!report) {
+    if (!medical) {
       throw new NotFoundException('Record not found');
     }
-    report.roles = roles;
-    return this.reportRepository.save(report);
+    medical.roles = roles;
+    return this.medicalRepository.save(medical);
   }
 
   async createAppointment(
     createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
-    const doctor = await this.medicalRepository.findOne({
+    const doctor = await this.userRepository.findOne({
       where: { id: createAppointmentDto.doctorId },
     });
     const patient = await this.userRepository.findOne({
@@ -198,12 +195,12 @@ export class UserService {
     return this.appointmentRepository.save(appointment);
   }
 
-  async findDoctors(): Promise<Medical[]> {
-    return this.medicalRepository.find();
+  async findDoctors(): Promise<User[]> {
+    return this.userRepository.find();
   }
 
   async findDoctorSchedule(doctorId: number): Promise<any> {
-    const doctor = await this.medicalRepository.findOne({
+    const doctor = await this.userRepository.findOne({
       where: { id: doctorId },
     });
     if (!doctor) {
@@ -212,14 +209,14 @@ export class UserService {
     return doctor.business_hours;
   }
 
-  async rateDoctor(doctorId: number, rating: number): Promise<Medical> {
-    const doctor = await this.medicalRepository.findOne({
+  async rateDoctor(doctorId: number, rating: number): Promise<User> {
+    const doctor = await this.userRepository.findOne({
       where: { id: doctorId },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
     doctor.rating = rating;
-    return this.medicalRepository.save(doctor);
+    return this.userRepository.save(doctor);
   }
 }

@@ -5,9 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { MedicalModule } from './medical/medical.module';
-import { ReportModule } from './report/report.module';
 import { User } from './user/user.entity';
-import { Report } from './report/report.entity';
 import { Medical } from './medical/medical.entity';
 
 @Module({
@@ -24,7 +22,7 @@ import { Medical } from './medical/medical.entity';
         username: 'postgres',
         password: 'postgres',
         database: 'postgres',
-        entities: [User, Report, Medical],
+        entities: [User, Medical],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
@@ -33,7 +31,6 @@ import { Medical } from './medical/medical.entity';
     UserModule,
     AppointmentModule,
     MedicalModule,
-    ReportModule,
   ],
 })
 export class AppModule {}

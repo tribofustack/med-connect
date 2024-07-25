@@ -1,10 +1,13 @@
+import { User } from 'src/user/user.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
+  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+User;
 
 @Entity()
 export class Medical {
@@ -12,25 +15,16 @@ export class Medical {
   id: number;
 
   @Column()
-  name: string;
+  title: string;
 
   @Column()
-  CRM: string; // hash
+  description: string;
 
   @Column()
-  address_id: number;
-
-  @Column()
-  email: string;
-
-  @Column('simple-array')
-  roles: string[];
-
-  @Column()
-  password: string; // hash
+  old_file_id: string;
 
   @Column('jsonb')
-  business_hours: any;
+  metadata: any;
 
   @CreateDateColumn()
   created_at: Date;
@@ -38,12 +32,9 @@ export class Medical {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  last_login: Date;
+  @ManyToOne(() => User, (user) => user.id)
+  patient: User;
 
-  @Column()
-  status: string;
-
-  @Column('float')
-  rating: number;
+  @Column('simple-array')
+  roles: string[];
 }

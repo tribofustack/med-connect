@@ -4,4 +4,7 @@ export class UpdateUserDto {
   email?: string;
   address_id?: number;
   status?: string;
+  business_hours?: any;
+  CRM?: string; // hash
+  rating?: number;
 }
