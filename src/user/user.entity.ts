@@ -18,5 +18,5 @@ export class User {
   role: string; // e.g., 'doctor', 'patient'
 
   @Column()
-  address: string; 
+  address: string;
 }
