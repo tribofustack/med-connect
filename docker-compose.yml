@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  rabbitmq:
+    image: rabbitmq:3.8
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
   db:
     image: postgres
     container_name: postgres
@@ -11,21 +19,6 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     ports:
       - '5432:5432'
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: med-connect
-    environment:
-      - PORT=3000
-    ports:
-      - '3000:3000'
-    depends_on:
-      - db
-    volumes:
-      - ./src:/app/src
-    
 
   pgadmin:
     image: dpage/pgadmin4
@@ -39,13 +32,20 @@ services:
     depends_on:
       - db
 
-  rabbitmq:
-    image: rabbitmq:3.8
-    container_name: rabbitmq
-    restart: always
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: med-connect
+    environment:
+      - PORT=3000
     ports:
-      - '5672:5672'
-      - '15672:15672'
+      - '3000:3000'
+    depends_on:
+      - db
+      - rabbitmq
+    volumes:
+      - ./src:/app/src
 
 volumes:
    postgres:
