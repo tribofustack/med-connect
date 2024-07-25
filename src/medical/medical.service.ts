@@ -33,7 +33,7 @@ export class MedicalService {
   }
 
   async findOne(id: number): Promise<Medical> {
-    const medical = await this.medicalRepository.findOne(id);
+    const medical = await this.medicalRepository.findOne({ where: { id } });
     if (!medical) {
       throw new NotFoundException('Medical professional not found');
     }
