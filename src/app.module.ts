@@ -6,10 +6,9 @@ import { UserModule } from './user/user.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { MedicalModule } from './medical/medical.module';
 import { ReportModule } from './report/report.module';
-
-import { User } from 'src/user/entities/user/user';
-import { Report } from 'src/report/entities/report/report';
-import { MedicalRecord } from 'src/medical/entities/medical-record/medical-record';
+import { User } from './user/user.entity';
+import { Report } from './report/report.entity';
+import { MedicalRecord } from './medical/medical-record.entity';
 
 @Module({
   imports: [
@@ -25,11 +24,7 @@ import { MedicalRecord } from 'src/medical/entities/medical-record/medical-recor
         username: 'postgres',
         password: 'postgres',
         database: 'postgres',
-        entities: [
-          User,
-          Report,
-          MedicalRecord,
-        ],
+        entities: [User, Report, MedicalRecord],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],
