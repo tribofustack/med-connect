@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Appointment } from './appointment.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { Appointment } from './appointment.entity';
+import { CreateMeetDto } from './dto/create-meet.dto';
 import { User } from 'src/user/user.entity';
 import { Medical } from 'src/medical/medical.entity';
 
@@ -77,5 +78,14 @@ export class AppointmentService {
     if (result.affected === 0) {
       throw new NotFoundException('Appointment not found');
     }
+  }
+
+  async createMeet(
+    id: number,
+    createMeetDto: CreateMeetDto,
+  ): Promise<Appointment> {
+    const appointment = await this.findOne(id);
+    appointment.meet = createMeetDto;
+    return this.appointmentRepository.save(appointment);
   }
 }

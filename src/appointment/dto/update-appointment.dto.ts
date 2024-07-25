@@ -9,11 +9,4 @@ export class UpdateAppointmentDto {
     creator: { id: number; email: string; displayName: string };
     organizer: { id: number; email: string; displayName: string };
   };
-  meet?: {
-    host: string;
-    code: string;
-    name: string;
-    url: string;
-    artifact: { transcription: string; record: string };
-  };
 }
