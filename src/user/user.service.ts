@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
+  constructor(private configService: ConfigService) {
+    const secretKey = this.configService.get<string>('JWT_SECRET');
+    // Use secretKey for JWT signing
+  }
+
   private users = [];
 
   createUser(data: any): any {
