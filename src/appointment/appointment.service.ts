@@ -1,35 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { Appointment } from './appointment.entity';
+import { User } from 'src/user/user.entity';
+import { Medical } from 'src/medical/medical.entity';
 
 @Injectable()
 export class AppointmentService {
-  private appointments = [];
+  constructor(
+    @InjectRepository(Appointment)
+    private appointmentRepository: Repository<Appointment>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Medical)
+    private medicalRepository: Repository<Medical>,
+  ) {}
 
-  createAppointment(data: any): any {
-    // Implement appointment creation logic
-    this.appointments.push(data);
-    return { message: 'Appointment created successfully', appointment: data };
-  }
+  async create(
+    createAppointmentDto: CreateAppointmentDto,
+  ): Promise<Appointment> {
+    const doctor = await this.medicalRepository.findOne({
+      where: { id: createAppointmentDto.doctorId },
+    });
+    const patient = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.patientId },
+    });
 
-  getAppointments(): any {
-    // Implement get appointments logic
-    return this.appointments;
-  }
-
-  updateAppointment(id: string, data: any): any {
-    // Implement update appointment logic
-    const appointmentIndex = this.appointments.findIndex(
-      (appointment) => appointment.id === id,
-    );
-    if (appointmentIndex > -1) {
-      this.appointments[appointmentIndex] = {
-        ...this.appointments[appointmentIndex],
-        ...data,
-      };
-      return {
-        message: 'Appointment updated successfully',
-        appointment: this.appointments[appointmentIndex],
-      };
+    if (!doctor || !patient) {
+      throw new NotFoundException('Doctor or Patient not found');
     }
-    return { message: 'Appointment not found' };
+
+    const appointment = this.appointmentRepository.create({
+      ...createAppointmentDto,
+      doctor,
+      patient,
+    });
+
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async findAll(): Promise<Appointment[]> {
+    return this.appointmentRepository.find({
+      relations: ['doctor', 'patient'],
+    });
+  }
+
+  async findOne(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+      relations: ['doctor', 'patient'],
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appointment;
+  }
+
+  async update(
+    id: number,
+    updateAppointmentDto: UpdateAppointmentDto,
+  ): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.preload({
+      id,
+      ...updateAppointmentDto,
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async remove(id: number): Promise<void> {
+    const result = await this.appointmentRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Appointment not found');
+    }
   }
 }
