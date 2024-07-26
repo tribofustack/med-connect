@@ -12,7 +12,7 @@ export class AppointmentService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(BusinessHour)
     private businessHoursRepository: Repository<BusinessHour>,
-  ) { }
+  ) {}
 
   async findByDoctorId(id: number): Promise<Partial<Appointment>[]> {
     const appointments = await this.appointmentRepository.find({
@@ -41,7 +41,7 @@ export class AppointmentService {
         'id',
         'title',
       ],
-      where: { userId: id, },
+      where: { userId: id },
     });
     if (!appointments || !appointments.length) {
       throw new NotFoundException('Appointments not found');
@@ -50,8 +50,10 @@ export class AppointmentService {
     return appointments;
   }
 
-  async request(userId: number, CreateAppointment: CreateAppointmentDto): Promise<Partial<Appointment>> {
-
+  async request(
+    userId: number,
+    CreateAppointment: CreateAppointmentDto,
+  ): Promise<Partial<Appointment>> {
     const status = 'requested';
     const title = `Agendamento com Dr. ${CreateAppointment.doctorName}`;
     const appointmentStart = CreateAppointment.event.start_date;
@@ -59,18 +61,25 @@ export class AppointmentService {
     const description = `Solicitado na data de ${appointmentStart} a ${appointmentEnd}`;
     const doctorId = CreateAppointment.doctorId;
 
-
     try {
-      await this.appointmentRepository.save({ status, title, description, appointmentStart, appointmentEnd, userId, doctorId, meet_url: 'url.com' });
+      await this.appointmentRepository.save({
+        status,
+        title,
+        description,
+        appointmentStart,
+        appointmentEnd,
+        userId,
+        doctorId,
+        meet_url: 'url.com',
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
 
     await this.businessHoursRepository.update(
       { id: CreateAppointment.businessId },
-      { status: 'agendado' }
+      { status: 'agendado' },
     );
-
 
     return {
       title,
@@ -100,11 +109,7 @@ export class AppointmentService {
     }
     const status = response ? 'approved' : 'disapproved';
 
-
-    await this.appointmentRepository.update(
-      { id: id },
-      { status: status }
-    );
+    await this.appointmentRepository.update({ id: id }, { status: status });
 
     return {
       title,
@@ -116,8 +121,6 @@ export class AppointmentService {
   }
 
   async create(): Promise<any> {
-
-
     // register - criar appointments ao inserir businessHours
   }
 }
