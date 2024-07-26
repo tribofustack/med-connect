@@ -37,7 +37,7 @@ jobs:
       - name: Setup Namespace
         working-directory: k8s/
         run: |
-            kubectl apply -f namespaces.yaml
+            kubectl apply -f namespace.yaml
             kubectl config set-context --current --namespace=med-connect
 
       - name: apply rabbitmq
