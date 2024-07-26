@@ -1,0 +1,55 @@
+_format_version: "1.1"
+
+services:
+- name: auth
+  url: http://med_connect_api:3000
+  routes:
+  - name: auth_get
+    methods: [GET]
+    paths:
+    - /auth/health
+    strip_path: false
+  - name: auth_post
+    methods: [POST]
+    paths:
+    - /auth/users/login
+    - /auth/doctors/login
+    - /auth/doctors
+    - /auth/users
+    strip_path: false
+
+- name: med_connect
+  url: http://med_connect_api:3000
+  routes:
+  - name: doctors
+    methods: [GET, PUT]
+    paths:
+    - /doctors
+    - /doctors/(?<id>\d+)/register
+    strip_path: false
+  - name: appointments
+    methods: [GET]
+    paths:
+    - /appointments/doctors/(?<id>\d+)
+    - /appointments/users/(?<id>\d+)
+    - /appointments/(?<id>\d+)/request/users/(?<userId>\d+)
+    - /appointments/response
+    strip_path: false
+  plugins:
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - "Content-Type: application/json"
+  - name: jwt
+    enabled: true
+    config:
+      key_claim_name: kid
+      claims_to_verify:
+      - exp
+
+consumers:
+- username: med-connect
+  jwt_secrets:
+  - algorithm: HS256
+    secret: this_is_a_super_secret

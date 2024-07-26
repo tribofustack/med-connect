@@ -6,18 +6,22 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { User } from 'src/user/user.entity';
-import { File } from 'src/medical/file.entity';
+import { MedicalRecords } from 'src/medical/medical-records.entity';
+import { env } from 'process';
+import { Doctor } from 'src/user/doctor.entity';
+import { UserService } from 'src/user/user.service';
+import { Auth } from './auth.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, File]),
+    TypeOrmModule.forFeature([User, Doctor, Auth, MedicalRecords]),
     PassportModule,
     JwtModule.register({
-      secret: 'yourSecretKey',
+      secret: env.JWT_KEY,
       signOptions: { expiresIn: '60m' },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, UserService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

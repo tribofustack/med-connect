@@ -1,134 +1,119 @@
-import * as bcrypt from 'bcrypt';
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { Appointment } from 'src/appointment/appointment.entity';
-import { In } from 'typeorm'; 
-import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
+import { Doctor } from './doctor.entity';
+import * as bcrypt from 'bcryptjs';
+import moment from 'moment';
+import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { RegisterBusinessHoursDto } from './dto/register-business-hours.dto';
+
+const createUserRequiredFields = [
+  'name',
+  'lastName',
+  'email',
+  'password',
+  'cpf',
+];
+
+const createDoctorRequiredFields = [
+  'name',
+  'lastName',
+  'email',
+  'password',
+  'crm',
+];
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Appointment)
-    private appointmentRepository: Repository<Appointment>,
+    private usersRepository: Repository<User>,
+    @InjectRepository(Doctor)
+    private doctorsRepository: Repository<Doctor>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    createUserRequiredFields.forEach((field) => {
+      if (!createUserDto[field]) throw new Error(`Missing field: ${field}`);
+    });
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const user = this.userRepository.create({
-      ...createUserDto,
+    const hashedCpf = await bcrypt.hash(createUserDto.cpf, 10);
+
+    const user = this.usersRepository.create({
+      email: createUserDto.email,
+      name: createUserDto.name,
+      lastName: createUserDto.lastName,
+      cpf: hashedCpf,
       password: hashedPassword,
     });
-    return this.userRepository.save(user);
+
+    return this.usersRepository.save(user);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.preload({
-      id,
-      ...updateUserDto,
+  async createDoctor(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+    createDoctorRequiredFields.forEach((field) => {
+      if (!createDoctorDto[field]) throw new Error(`Missing field: ${field}`);
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
+
+    const hashedPassword = await bcrypt.hash(createDoctorDto.password, 10);
+    const hashedCRM = await bcrypt.hash(createDoctorDto.crm, 10);
+
+    let cpf = null;
+    if (createDoctorDto.cpf) {
+      cpf = await bcrypt.hash(createDoctorDto.cpf, 10);
     }
-    return this.userRepository.save(user);
+
+    const doctor = this.doctorsRepository.create({
+      email: createDoctorDto.email,
+      name: createDoctorDto.name,
+      lastName: createDoctorDto.lastName,
+      cpf,
+      crm: hashedCRM,
+      password: hashedPassword,
+    });
+
+    return this.doctorsRepository.save(doctor);
   }
 
-  async changePassword(
+  async findDoctors(): Promise<Partial<Doctor>[]> {
+    return this.doctorsRepository.find({
+      select: ['id', 'name', 'email', 'lastName', 'address'],
+      where: {
+        businessHoursStart: Not(IsNull()),
+        businessHoursEnd: Not(IsNull()),
+      },
+    });
+  }
+
+  async register(
     id: number,
-    changePasswordDto: ChangePasswordDto,
-  ): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { id: id} });
-    const passwordMatch = await bcrypt.compare(
-      changePasswordDto.currentPassword,
-      user.password,
-    );
-    if (!passwordMatch) {
-      throw new BadRequestException('Current password is incorrect');
-    }
-    user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    await this.userRepository.save(user);
-  }
-
-  async findPacients(): Promise<User[]> {
-    return this.userRepository.find({where: { type: "pacient" }});
-  }
-
-  async findPacient(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id: id, type: "pacient" } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  async findDoctors(): Promise<any[]> {
-    const doctors = await this.userRepository.find({
-      where: { type: "doctor" }
+    registerBusinessHours: RegisterBusinessHoursDto,
+  ): Promise<any> {
+    const doctor = await this.doctorsRepository.findOne({
+      where: { id },
     });
+    if (!doctor) throw new Error('Doctor not found');
 
-    const doctorIds = doctors.map(doctor => doctor.id);
-    const appointments = await this.appointmentRepository.find({
-      where: { 
-        doctorId: In(doctorIds)
-      }
-    });
+    const currentDate = moment().add(-3, 'hours');
+    console.log('\n currentDate', currentDate, '\n');
+    const startDate = moment(registerBusinessHours.startDate);
+    const endDate = moment(registerBusinessHours.endDate);
 
-    const doctorsWithAppointments = doctors.map(doctor => {
-      const doctorAppointments = appointments.filter(appointment => appointment.doctorId === doctor.id);
-      return { ...doctor, appointments: doctorAppointments };
-    });
+    if (!startDate.isValid() || !endDate.isValid())
+      throw new Error('Invalid dates');
 
-    return doctorsWithAppointments;
-  }
+    if (
+      startDate.isBefore(currentDate) ||
+      endDate.isBefore(currentDate) ||
+      endDate.isBefore(startDate)
+    )
+      throw new Error('Invalid interval dates');
 
-  async findDoctor(id: number): Promise<User> {
-    return this.userRepository.findOne({
-      where: { id: id, type: "doctor" }
-    });
-  }
-
-  async findDoctorSchedule(doctorId: number): Promise<any> {
-    const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
-    });
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-    return doctor.business_hours;
-  }
-
-  async rateDoctor(doctorId: number, rating: number): Promise<User> {
-    const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
-    });
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-    doctor.rating = rating;
-    return this.userRepository.save(doctor);
-  }
-
-  async createBusinessHour(doctorId: number, createBusinessHourDTO: CreateBusinessHourDTO): Promise<User> {
-    const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
-    });
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-
-    let business_hours = doctor.business_hours ? doctor.business_hours : [];
-    business_hours.push(createBusinessHourDTO);
-    doctor.business_hours = business_hours;
-    return this.userRepository.save(doctor);
+    const difference = startDate.diff(endDate, 'hours');
+    // appointment service
+    console.log('\n diff', difference, '\n');
   }
 }

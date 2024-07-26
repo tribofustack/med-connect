@@ -2,131 +2,106 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appointment } from './appointment.entity';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { CreateMeetDto } from './dto/create-meet.dto';
-import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AppointmentService {
   constructor(
     @InjectRepository(Appointment)
     private appointmentRepository: Repository<Appointment>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
   ) {}
 
-  async create(
-    createAppointmentDto: CreateAppointmentDto,
-  ): Promise<Appointment> {
-    const doctor = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.doctorId },
+  async findByDoctorId(id: number): Promise<Partial<Appointment>[]> {
+    const appointments = await this.appointmentRepository.find({
+      select: [
+        'appointmentStart',
+        'appointmentEnd',
+        'description',
+        'id',
+        'title',
+      ],
+      where: { doctorId: id },
     });
-    const pacientId = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.pacientId },
-    });
-
-    if (!doctor || !pacientId) {
-      throw new NotFoundException('Doctor or Patient not found');
+    if (!appointments || !appointments.length) {
+      throw new NotFoundException('Appointments not found');
     }
 
-    const appointment = this.appointmentRepository.create({
-      ...createAppointmentDto
+    return appointments;
+  }
+
+  async findByUserId(id: number): Promise<Appointment[]> {
+    const appointments = await this.appointmentRepository.find({
+      relations: ['User'],
+      where: { userId: id },
+    });
+    if (!appointments || !appointments.length) {
+      throw new NotFoundException('Appointments not found');
+    }
+
+    return appointments;
+  }
+
+  async request(id: number, userId: number): Promise<Partial<Appointment>> {
+    const appointment = await this.appointmentRepository.findOne({
+      relations: ['Doctor'],
+      where: { userId, id },
     });
 
-    return this.appointmentRepository.save(appointment);
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    const status = 'requested';
+    const title = `Agendamento com Dr. ${appointment.doctor.name} ${appointment.doctor.lastName}`;
+    const appointmentStart = appointment.appointmentStart;
+    const appointmentEnd = appointment.appointmentEnd;
+    const description = `Solicitado na data de ${appointmentStart} a ${appointmentEnd}`;
+
+    await this.appointmentRepository.save({ status, title, description });
+
+    return {
+      title,
+      appointmentStart,
+      appointmentEnd,
+      description,
+      status,
+    };
   }
 
-  async findAll(): Promise<Appointment[]> {
-    return this.appointmentRepository.find();
-  }
-
-  async findOne(id: number): Promise<Appointment> {
+  async response(id: number, response: boolean): Promise<Partial<Appointment>> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
     });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    return appointment;
+
+    const appointmentStart = appointment.appointmentStart;
+    const appointmentEnd = appointment.appointmentEnd;
+    let title = 'Agendamento foi cancelado pelo doutor.';
+    let description = 'Agendamento foi cancelado, favor solicitar novamente.';
+
+    if (response) {
+      title = 'Agendamento foi aprovado pelo doutor.';
+      description = `Confirmado na data de ${appointmentStart} a ${appointmentEnd}`;
+    }
+    const status = response ? 'approved' : 'disapproved';
+
+    await this.appointmentRepository.save({
+      status,
+      title,
+      description,
+    });
+
+    return {
+      title,
+      appointmentStart,
+      appointmentEnd,
+      description,
+      status,
+    };
   }
 
-  async update(
-    id: number,
-    updateAppointmentDto: UpdateAppointmentDto,
-  ): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.preload({
-      id,
-      ...updateAppointmentDto,
-    });
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-    return this.appointmentRepository.save(appointment);
-  }
-
-  async remove(id: number): Promise<void> {
-    const result = await this.appointmentRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('Appointment not found');
-    }
-  }
-
-  async findByPacientId(id: number): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.findOne({
-      where: { pacientId: id },
-    });
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-    return appointment;
-  }
-
-  async findByDoctorId(id: number): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.findOne({
-      where: { doctorId: id },
-    });
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-    return appointment;
-  }
-
-  async requestAppointment(createAppointmentDto: CreateAppointmentDto): Promise<Appointment> {
-    const doctor = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.doctorId },
-    });
-
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-
-    const pacientId = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.pacientId },
-    });
-
-    if (!pacientId) {
-      throw new NotFoundException('Pacient not found');
-    }
-
-    const appointment = this.appointmentRepository.create({
-      ...createAppointmentDto
-    });
-
-    appointment.status = "Aguardando aprovacao";
-
-    return this.appointmentRepository.save(appointment);
-  }
-
-  async responseAppointment(id: number, status: string): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.findOne({
-      where: { id: id },
-    });
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-    appointment.meet_url = "https://meet.google.com.br/acfdbe";
-    appointment.status = status;
-    return this.appointmentRepository.save(appointment);
+  async create(): Promise<any> {
+    // register - criar appointments ao inserir businessHours
   }
 }
