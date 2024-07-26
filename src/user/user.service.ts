@@ -4,7 +4,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Doctor } from './doctor.entity';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import moment from 'moment';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { RegisterBusinessHoursDto } from './dto/register-business-hours.dto';

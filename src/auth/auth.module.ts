@@ -9,17 +9,19 @@ import { User } from 'src/user/user.entity';
 import { MedicalRecords } from 'src/medical/medical-records.entity';
 import { env } from 'process';
 import { Doctor } from 'src/user/doctor.entity';
+import { UserService } from 'src/user/user.service';
+import { Auth } from './auth.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Doctor, MedicalRecords]),
+    TypeOrmModule.forFeature([User, Doctor, Auth, MedicalRecords]),
     PassportModule,
     JwtModule.register({
       secret: env.JWT_KEY,
       signOptions: { expiresIn: '60m' },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, UserService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

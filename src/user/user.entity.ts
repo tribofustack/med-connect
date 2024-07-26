@@ -31,6 +31,7 @@ export class User {
   @Column({
     name: 'email_confirmed_at',
     type: 'timestamp',
+    nullable: true,
   })
   emailConfirmedAt: Date;
 

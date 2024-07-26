@@ -1,96 +1,55 @@
 _format_version: "1.1"
 
 services:
-- name: users
-  url: http://med_connect_api:3000/users
-  routes:
-  - name: users_path
-    methods: [GET, POST, PUT, DELETE]
-    paths:
-    - /
-    - /(?<id>\d+)
-    plugins:
-    - name: request-transformer
-      config:
-        add:
-          headers:
-          - "Content-Type: application/json"
-    strip_path: false
-
-- name: doctors
-  url: http://med_connect_api:3000/doctors
-  routes:
-  - name: doctors_path
-    methods: [GET, POST, PUT, DELETE]
-    paths:
-    - /
-    - /(?<id>\d+)
-    plugins:
-    - name: request-transformer
-      config:
-        add:
-          headers:
-          - "Content-Type: application/json"
-    strip_path: false
-
-- name: appointments
-  url: http://med_connect_api:3000/appointments
-  routes:
-  - name: appointments_path
-    methods: [GET, POST, PUT, DELETE]
-    paths:
-    - /doctors/(?<id>\d+)
-    - /users/(?<id>\d+)
-    - /register
-    - /request
-    - /response
-    strip_path: false
-    plugins:
-    - name: request-transformer
-      config:
-        add:
-          headers:
-          - "Content-Type: application/json"
-    - name: http-log
-      config:
-        http_endpoint: https://webhook.site/b07af8bf-56d3-4755-a55d-e85e23aece9a
-        method: POST
-
 - name: auth
-  url: http://med_connect_api:3000/auth
+  url: http://med_connect_api:3000
   routes:
-  - name: auth_path
-    methods: [POST, GET]
+  - name: auth_get
+    methods: [GET]
     paths:
-    - /
-    - /health
+    - /auth/health
     strip_path: false
+  - name: auth_post
+    methods: [POST]
+    paths:
+    - /auth/users/login
+    - /auth/doctors/login
+    - /auth/doctors
+    - /auth/users
+    strip_path: false
+
+- name: med_connect
+  url: http://med_connect_api:3000
+  routes:
+  - name: doctors
+    methods: [GET, PUT]
+    paths:
+    - /doctors
+    - /doctors/(?<id>\d+)/register
+    strip_path: false
+  - name: appointments
+    methods: [GET]
+    paths:
+    - /appointments/doctors/(?<id>\d+)
+    - /appointments/users/(?<id>\d+)
+    - /appointments/(?<id>\d+)/request/users/(?<userId>\d+)
+    - /appointments/response
+    strip_path: false
+  plugins:
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - "Content-Type: application/json"
+  - name: jwt
+    enabled: true
+    config:
+      key_claim_name: kid
+      claims_to_verify:
+      - exp
 
 consumers:
 - username: med-connect
   jwt_secrets:
   - algorithm: HS256
     secret: this_is_a_super_secret
-
-plugins:
-- name: jwt
-  service: users
-  enabled: true
-  config:
-    key_claim_name: kid
-    claims_to_verify:
-    - exp
-- name: jwt
-  service: doctors
-  enabled: true
-  config:
-    key_claim_name: kid
-    claims_to_verify:
-    - exp
-- name: jwt
-  service: appointments
-  enabled: true
-  config:
-    key_claim_name: kid
-    claims_to_verify:
-    - exp
