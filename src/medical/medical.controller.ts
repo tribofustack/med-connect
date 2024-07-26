@@ -10,33 +10,25 @@ import {
 import { MedicalService } from './medical.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
-import { Medical } from './medical.entity';
+import { File } from './file.entity';
 
 @Controller('medicals')
 export class MedicalController {
   constructor(private readonly medicalService: MedicalService) {}
 
   @Post()
-  create(@Body() createFileDto: CreateFileDto): Promise<Medical> {
+  create(@Body() createFileDto: CreateFileDto): Promise<File> {
     return this.medicalService.create(createFileDto);
   }
 
-  @Get()
-  findAll(): Promise<Medical[]> {
-    return this.medicalService.findAll();
+  @Get(':id')
+  findAll(@Param('id') id: number): Promise<File[]> {
+    return this.medicalService.findAll(id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Medical> {
+  findOne(@Param('id') id: number): Promise<File> {
     return this.medicalService.findOne(id);
-  }
-
-  @Put(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateFileDto: UpdateFileDto,
-  ): Promise<Medical> {
-    return this.medicalService.update(id, updateFileDto);
   }
 
   @Delete(':id')

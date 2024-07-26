@@ -6,7 +6,7 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CreateMeetDto } from './dto/create-meet.dto';
 import { User } from 'src/user/user.entity';
-import { Medical } from 'src/medical/medical.entity';
+import { File } from 'src/medical/file.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -15,8 +15,8 @@ export class AppointmentService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Medical)
-    private medicalRepository: Repository<Medical>,
+    @InjectRepository(File)
+    private medicalRepository: Repository<File>,
   ) {}
 
   async create(

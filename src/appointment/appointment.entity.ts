@@ -1,4 +1,4 @@
-import { Medical } from 'src/medical/medical.entity';
+import { File } from 'src/medical/file.entity';
 import { User } from 'src/user/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
@@ -34,8 +34,8 @@ export class Appointment {
     artifact: { transcription: string; record: string };
   };
 
-  @ManyToOne(() => Medical, (medical) => medical.id)
-  doctor: Medical;
+  @ManyToOne(() => File, (medical) => medical.id)
+  doctor: File;
 
   @ManyToOne(() => User, (user) => user.id)
   patient: User;

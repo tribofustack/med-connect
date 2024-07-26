@@ -10,7 +10,7 @@ import {
 User;
 
 @Entity()
-export class Medical {
+export class File {
   @PrimaryGeneratedColumn()
   id: number;
 
