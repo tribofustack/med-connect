@@ -46,15 +46,7 @@ export class AppointmentController {
   remove(@Param('id') id: number): Promise<void> {
     return this.appointmentService.remove(id);
   }
-
-  @Post(':id/meet')
-  createMeet(
-    @Param('id') id: number,
-    @Body() createMeetDto: CreateMeetDto,
-  ): Promise<Appointment> {
-    return this.appointmentService.createMeet(id, createMeetDto);
-  }
-
+  
   @Get('findByPacient/:id')
   findByPacientId(@Param('id') id: number): Promise<Appointment> {
     return this.appointmentService.findByPacientId(id);

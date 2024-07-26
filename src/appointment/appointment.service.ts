@@ -72,15 +72,6 @@ export class AppointmentService {
     }
   }
 
-  async createMeet(
-    id: number,
-    createMeetDto: CreateMeetDto,
-  ): Promise<Appointment> {
-    const appointment = await this.findOne(id);
-    appointment.meet = createMeetDto;
-    return this.appointmentRepository.save(appointment);
-  }
-
   async findByPacientId(id: number): Promise<Appointment> {
     const appointment = await this.appointmentRepository.findOne({
       where: { pacientId: id },
@@ -134,6 +125,7 @@ export class AppointmentService {
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
+    appointment.meet_url = "https://meet.google.com.br/acfdbe";
     appointment.status = status;
     return this.appointmentRepository.save(appointment);
   }
