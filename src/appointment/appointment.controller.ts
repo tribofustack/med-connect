@@ -6,7 +6,7 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
 @Controller('appointments')
 export class AppointmentController {
-  constructor(private readonly appointmentService: AppointmentService) { }
+  constructor(private readonly appointmentService: AppointmentService) {}
 
   @Get('doctors/:id')
   async findByDoctorId(

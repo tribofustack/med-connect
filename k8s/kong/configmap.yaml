@@ -23,6 +23,11 @@ data:
         - /auth/doctors
         - /auth/users
         strip_path: false
+      plugins:
+      - name: http-log
+        config:
+          http_endpoint: https://webhook.site/b07af8bf-56d3-4755-a55d-e85e23aece9a
+          method: POST
     - name: med_connect
       url: http://api-service:3000
       routes:
@@ -33,12 +38,12 @@ data:
         - /doctors/(?<id>\d+)/register
         strip_path: false
       - name: appointments
-        methods: [GET]
+        methods: [GET, POST, PUT]
         paths:
         - /appointments/doctors/(?<id>\d+)
         - /appointments/users/(?<id>\d+)
-        - /appointments/(?<id>\d+)/request/users/(?<userId>\d+)
-        - /appointments/response
+        - /appointments/request/users/(?<userId>\d+)
+        - /appointments/(?<id>\d+)/response
         strip_path: false
       plugins:
       - name: request-transformer
