@@ -17,7 +17,7 @@ export class MedicalService {
 
   async create(createFileDto: CreateFileDto): Promise<Medical> {
     const patient = await this.userRepository.findOne({
-      where: { id: createFileDto.patientId },
+      where: { id: createFileDto.userId },
     });
 
     if (!patient) {
@@ -26,36 +26,27 @@ export class MedicalService {
 
     const medical = this.medicalRepository.create({
       ...createFileDto,
-      patient,
+      user: patient,
     });
 
     return this.medicalRepository.save(medical);
   }
 
-  async findAll(): Promise<Medical[]> {
-    return this.medicalRepository.find({ relations: ['patient'] });
+  async findAll(userId: number): Promise<Medical[]> {
+    // TO DO
+    // search only pacients files
+    return this.medicalRepository.find({ relations: ['user'] });
   }
 
   async findOne(id: number): Promise<Medical> {
     const medical = await this.medicalRepository.findOne({
       where: { id },
-      relations: ['patient'],
+      relations: ['user'],
     });
     if (!medical) {
       throw new NotFoundException('File not found');
     }
     return medical;
-  }
-
-  async update(id: number, updateFileDto: UpdateFileDto): Promise<Medical> {
-    const medical = await this.medicalRepository.preload({
-      id,
-      ...updateFileDto,
-    });
-    if (!medical) {
-      throw new NotFoundException('File not found');
-    }
-    return this.medicalRepository.save(medical);
   }
 
   async remove(id: number): Promise<void> {

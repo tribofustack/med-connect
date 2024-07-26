@@ -33,7 +33,7 @@ export class Medical {
   updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.id)
-  patient: User;
+  user: User;
 
   @Column('simple-array')
   roles: string[];

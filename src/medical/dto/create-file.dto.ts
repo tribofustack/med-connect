@@ -3,6 +3,6 @@ export class CreateFileDto {
   description: string;
   old_file_id: string;
   metadata: any;
-  patientId: number;
+  userId: number;
   roles: string[];
 }
