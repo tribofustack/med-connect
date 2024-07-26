@@ -5,19 +5,12 @@ import {
   Body,
   Param,
   Put,
-  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CreateRecordDto } from './dto/create-record.dto';
-import { UpdateRecordDto } from './dto/update-record.dto';
-import { CreateAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
-import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
 import { User } from './user.entity';
-import { Medical } from 'src/medical/medical.entity';
-import { Appointment } from 'src/appointment/appointment.entity';
 
 @Controller('users')
 export class UserController {
@@ -28,16 +21,6 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll(): Promise<User[]> {
-    return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<User> {
-    return this.userService.findOne(id);
-  }
-
   @Put(':id')
   update(
     @Param('id') id: number,
@@ -46,101 +29,33 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Put(':id/password')
+  @Put(':type/:id/')
   changePassword(
     @Param('id') id: number,
+    @Param('type') type: string,
     @Body() changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    return this.userService.changePassword(id, changePasswordDto);
+    return this.userService.changePassword(id, type, changePasswordDto);
   }
 
-  @Post(':id/records')
-  createRecord(
-    @Param('id') id: number,
-    @Body() createRecordDto: CreateRecordDto,
-  ): Promise<Medical> {
-    return this.userService.createRecord(id, createRecordDto);
+  @Get('pacient/')
+  findPacients(): Promise<User[]> {
+    return this.userService.findPacients();
   }
 
-  @Put(':userId/records/:recordId')
-  updateRecord(
-    @Param('userId') userId: number,
-    @Param('recordId') recordId: number,
-    @Body() updateRecordDto: UpdateRecordDto,
-  ): Promise<Medical> {
-    return this.userService.updateRecord(recordId, updateRecordDto);
-  }
-
-  @Post(':userId/records/:recordId/upload')
-  uploadDocument(
-    @Param('userId') userId: number,
-    @Param('recordId') recordId: number,
-    @Body() file: any,
-  ): Promise<Medical> {
-    return this.userService.uploadDocument(recordId, file);
-  }
-
-  @Get(':userId/records/:recordId')
-  readRecord(
-    @Param('userId') userId: number,
-    @Param('recordId') recordId: number,
-  ): Promise<Medical> {
-    return this.userService.readRecord(recordId);
-  }
-
-  @Delete(':userId/records/:recordId')
-  deleteRecord(
-    @Param('userId') userId: number,
-    @Param('recordId') recordId: number,
-  ): Promise<void> {
-    return this.userService.deleteRecord(recordId);
-  }
-
-  @Put(':userId/records/:recordId/permissions')
-  manageRecordPermissions(
-    @Param('userId') userId: number,
-    @Param('recordId') recordId: number,
-    @Body() roles: string[],
-  ): Promise<Medical> {
-    return this.userService.manageRecordPermissions(recordId, roles);
-  }
-
-  @Post(':id/appointments')
-  createAppointment(
-    @Param('id') id: number,
-    @Body() createAppointmentDto: CreateAppointmentDto,
-  ): Promise<Appointment> {
-    return this.userService.createAppointment(createAppointmentDto);
-  }
-
-  @Get(':id/appointments')
-  findAppointments(@Param('id') id: number): Promise<Appointment[]> {
-    return this.userService.findAppointments(id);
-  }
-
-  @Put(':userId/appointments/:appointmentId')
-  updateAppointment(
-    @Param('userId') userId: number,
-    @Param('appointmentId') appointmentId: number,
-    @Body() updateAppointmentDto: UpdateAppointmentDto,
-  ): Promise<Appointment> {
-    return this.userService.updateAppointment(
-      appointmentId,
-      updateAppointmentDto,
-    );
-  }
-
-  @Delete(':userId/appointments/:appointmentId')
-  cancelAppointment(
-    @Param('userId') userId: number,
-    @Param('appointmentId') appointmentId: number,
-  ): Promise<void> {
-    return this.userService.cancelAppointment(appointmentId);
+  @Get('pacient/:id')
+  findPacient(@Param('id') id: number): Promise<User> {
+    return this.userService.findPacient(id);
   }
 
   @Get('doctors')
   findDoctors(): Promise<User[]> {
     return this.userService.findDoctors();
+  }
+
+  @Get('doctors/:id')
+  findDoctor(@Param('id') id: number): Promise<User> {
+    return this.userService.findDoctor(id);
   }
 
   @Get('doctors/:doctorId/schedule')

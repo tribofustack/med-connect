@@ -24,6 +24,9 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
+  type: string;
+
+  @Column({ nullable: true })
   cpf: string;
 
   @CreateDateColumn({ type: 'timestamp',nullable: true })
