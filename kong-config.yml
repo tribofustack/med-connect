@@ -1,62 +1,14 @@
 _format_version: "1.1"
 
 services:
-- name: ms_checkin_categories
-  url: http://ms_checkin:3001/products/category
+- name: users
+  url: http://med_connect_api:3000/users
   routes:
-  - name: get-categories
-    methods: [GET]
+  - name: users_path
+    methods: [GET, POST, PUT, DELETE]
     paths:
-    - /categories
-    plugins:
-    - name: rate-limiting
-      config:
-        second: 3
-        minute: 5
-        hour: 10
-        policy: local
-    strip_path: true
-- name: ms_checkin
-  url: http://ms_checkin:3001
-  routes:
-  - name: customers
-    methods: [GET, POST]
-    paths:
-    - /customers
-    - /customers/document/(?<cpf>\d+)
-    - /customers/(?<id>\d+)
-    plugins:
-    - name: request-transformer
-      config:
-        add:
-          headers:
-          - "Content-Type: application/json"
-    strip_path: false
-  - name: products
-    paths:
-    - /products
-    - /products/(?<id>\d+)
-    - /products/category/(?<id>\d+)
-    plugins:
-    - name: request-transformer
-      config:
-        add:
-          headers:
-          - "Content-Type: application/json"
-    methods: [POST, PUT, DELETE, GET]
-    strip_path: false
-
-- name: ms_checkout
-  url: http://ms_checkout:3002
-  routes:
-  - name: orders
-    methods: [GET, POST]
-    paths:
-    - /orders
-    - /orders/(?<id>\d+)/prepare
-    - /orders/(?<id>\d+)/withdrawn
-    - /orders/customer/(?<id>\d+)
-    - /orders/(?<id>\d+)/status
+    - /
+    - /(?<id>\d+)
     plugins:
     - name: request-transformer
       config:
@@ -65,15 +17,14 @@ services:
           - "Content-Type: application/json"
     strip_path: false
 
-- name: ms_financial
-  url: http://ms_financial:3003
+- name: doctors
+  url: http://med_connect_api:3000/doctors
   routes:
-  - name: payments
-    methods: [GET, POST, DELETE]
+  - name: doctors_path
+    methods: [GET, POST, PUT, DELETE]
     paths:
-    - /payments/order/(?<id>\d+)
-    - /payments/order/(?<id>\d+)/approve
-    - /payments/order/(?<id>\d+)/cancel
+    - /
+    - /(?<id>\d+)
     plugins:
     - name: request-transformer
       config:
@@ -82,49 +33,62 @@ services:
           - "Content-Type: application/json"
     strip_path: false
 
-- name: ms_auth
-  url: http://ms_auth:3000
+- name: appointments
+  url: http://med_connect_api:3000/appointments
   routes:
-  - name: auth
-    methods: [POST]
+  - name: appointments_path
+    methods: [GET, POST, PUT, DELETE]
     paths:
-    - /customer/auth
+    - /doctors/(?<id>\d+)
+    - /users/(?<id>\d+)
+    - /register
+    - /request
+    - /response
+    strip_path: false
     plugins:
-    - name: rate-limiting
+    - name: request-transformer
       config:
-        second: 3
-        minute: 5
-        hour: 10
-        policy: local
+        add:
+          headers:
+          - "Content-Type: application/json"
     - name: http-log
       config:
-        http_endpoint: https://webhook.site/ad3a0bcc-25f8-491e-8c18-fae253167580
+        http_endpoint: https://webhook.site/b07af8bf-56d3-4755-a55d-e85e23aece9a
         method: POST
+
+- name: auth
+  url: http://med_connect_api:3000/auth
+  routes:
+  - name: auth_path
+    methods: [POST, GET]
+    paths:
+    - /
+    - /health
     strip_path: false
 
 consumers:
-- username: orderly
+- username: med-connect
   jwt_secrets:
   - algorithm: HS256
     secret: this_is_a_super_secret
 
 plugins:
 - name: jwt
-  service: ms_financial
+  service: users
   enabled: true
   config:
     key_claim_name: kid
     claims_to_verify:
     - exp
 - name: jwt
-  service: ms_checkout
+  service: doctors
   enabled: true
   config:
     key_claim_name: kid
     claims_to_verify:
     - exp
 - name: jwt
-  service: ms_checkin
+  service: appointments
   enabled: true
   config:
     key_claim_name: kid

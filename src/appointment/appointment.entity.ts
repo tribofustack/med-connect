@@ -23,9 +23,9 @@ export class Appointment {
 
   @Column({
     type: 'varchar',
-    enum: ['created', 'approved', 'disapproved'],
+    enum: ['created', 'approved', 'disapproved', 'requested'],
   })
-  status: 'created' | 'approved' | 'disapproved';
+  status: 'created' | 'approved' | 'disapproved' | 'requested';
 
   @Column({ type: 'timestamp', nullable: true, name: 'appointment_start' })
   appointmentStart: Date;

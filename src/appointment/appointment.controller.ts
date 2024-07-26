@@ -1,73 +1,37 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Appointment } from './appointment.entity';
+import { ResponseAppointmentDto } from './dto/response-appointment.dto';
 
-@Controller('appointment')
+@Controller('appointments')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
-  @Post()
-  create(
-    @Body() createAppointmentDto: CreateAppointmentDto,
-  ): Promise<Appointment | void> {
-    return this.appointmentService.create(createAppointmentDto);
-  }
-
-  @Get()
-  findAll(): Promise<Appointment[] | void> {
-    return this.appointmentService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<Appointment | void> {
-    return this.appointmentService.findOne(id);
-  }
-
-  @Put(':id')
-  update(
+  @Get('doctors/:id')
+  async findByDoctorId(
     @Param('id') id: number,
-    @Body() updateAppointmentDto: UpdateAppointmentDto,
-  ): Promise<Appointment | void> {
-    return this.appointmentService.update(id, updateAppointmentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: number): Promise<void | void> {
-    return this.appointmentService.remove(id);
-  }
-
-  @Get('findByPacient/:id')
-  findByPacientId(@Param('id') id: number): Promise<Appointment | void> {
-    return this.appointmentService.findByPacientId(id);
-  }
-
-  @Get('findByDoctor/:id')
-  findByDoctorId(@Param('id') id: number): Promise<Appointment | void> {
+  ): Promise<Partial<Appointment>[]> {
     return this.appointmentService.findByDoctorId(id);
   }
 
-  @Post('request')
-  requestAppointment(
-    @Body() createAppointmentDto: CreateAppointmentDto,
-  ): Promise<Appointment | void> {
-    return this.appointmentService.requestAppointment(createAppointmentDto);
+  @Get('users/:id')
+  async findByUserId(@Param('id') id: number): Promise<Appointment[]> {
+    return this.appointmentService.findByUserId(id);
   }
 
-  @Post('response/:id/:status')
-  responseAppointment(
+  @Put(':id/request/users/:userId')
+  async request(
     @Param('id') id: number,
-    @Param('status') status: string,
-  ): Promise<Appointment | void> {
-    return this.appointmentService.responseAppointment(id, status);
+    @Param('userId') userId: number,
+  ): Promise<Partial<Appointment>> {
+    return this.appointmentService.request(id, userId);
+  }
+
+  @Put(':id/response')
+  async response(
+    @Param('id') id: number,
+    @Body() responseDto: ResponseAppointmentDto,
+  ): Promise<Partial<Appointment>> {
+    return this.appointmentService.response(id, responseDto.response);
   }
 }

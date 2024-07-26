@@ -1,8 +1,9 @@
-export class CreateUserDto {
+export class CreateDoctorDto {
   name: string;
   lastName: string;
   email: string;
   password: string;
-  cpf: string;
+  crm: string;
+  cpf?: string;
   address?: string;
 }

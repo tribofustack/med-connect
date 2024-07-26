@@ -39,12 +39,15 @@ bootstrap();
   list doctors - GET /doctors
 
   POST /auth
+
   POST /users
+  
   GET /appointments/doctors/:id
   GET /appointments/users/:id
-  POST /appointments/request
-  POST /doctors
   POST /appointments/register
+  PUT /appointments/request
   PUT /appointments/response
+  
+  POST /doctors
   GET /doctors
 */
