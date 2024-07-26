@@ -34,8 +34,14 @@ export class AppointmentService {
 
   async findByUserId(id: number): Promise<Appointment[]> {
     const appointments = await this.appointmentRepository.find({
-      relations: ['User'],
-      where: { userId: id },
+      select: [
+        'appointmentStart',
+        'appointmentEnd',
+        'description',
+        'id',
+        'title',
+      ],
+      where: { userId: id, },
     });
     if (!appointments || !appointments.length) {
       throw new NotFoundException('Appointments not found');
@@ -97,7 +103,7 @@ export class AppointmentService {
 
     await this.appointmentRepository.update(
       { id: id },
-      { status: 'approved' }
+      { status: status }
     );
 
     return {
