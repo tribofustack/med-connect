@@ -6,5 +6,7 @@ export class CreateAppointmentDto {
     end_date: Date;
   };
   doctorId: number;
+  doctorName: string;
   pacientId: number;
+  businessId: number;
 }

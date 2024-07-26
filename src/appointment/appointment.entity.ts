@@ -36,12 +36,6 @@ export class Appointment {
   @Column({ nullable: true, name: 'meet_url' })
   meetUrl: string;
 
-  @Column({
-    type: 'uuid',
-    name: 'medical_records_id',
-  })
-  medicalRecordsId: string;
-
   @ManyToOne(() => User, (user) => user.appointments)
   @JoinColumn({ name: 'user_id' })
   user: User;
