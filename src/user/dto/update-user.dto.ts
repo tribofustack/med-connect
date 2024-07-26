@@ -1,7 +1,10 @@
 export class UpdateUserDto {
+  type?: string;
   name?: string;
   last_name?: string;
   email?: string;
-  address_id?: number;
+  address?: string;
   status?: string;
+  CRM?: string;
+  rating?: number;
 }

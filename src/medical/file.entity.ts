@@ -10,7 +10,7 @@ import {
 User;
 
 @Entity()
-export class Report {
+export class File {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -33,7 +33,7 @@ export class Report {
   updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.id)
-  patient: User;
+  user: User;
 
   @Column('simple-array')
   roles: string[];

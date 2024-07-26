@@ -10,25 +10,17 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { CreateRecordDto } from './dto/create-record.dto';
-import { UpdateRecordDto } from './dto/update-record.dto';
-import { Medical } from 'src/medical/medical.entity';
 import { Appointment } from 'src/appointment/appointment.entity';
-import { Report } from 'src/report/report.entity';
-import { CreateAppointmentDto } from 'src/appointment/dto/create-appointment.dto';
-import { UpdateAppointmentDto } from 'src/appointment/dto/update-appointment.dto';
+import { In } from 'typeorm'; 
+import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Report)
-    private reportRepository: Repository<Report>,
     @InjectRepository(Appointment)
     private appointmentRepository: Repository<Appointment>,
-    @InjectRepository(Medical)
-    private medicalRepository: Repository<Medical>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -38,18 +30,6 @@ export class UserService {
       password: hashedPassword,
     });
     return this.userRepository.save(user);
-  }
-
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
-  }
-
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -67,7 +47,7 @@ export class UserService {
     id: number,
     changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    const user = await this.findOne(id);
+    const user = await this.userRepository.findOne({ where: { id: id} });
     const passwordMatch = await bcrypt.compare(
       changePasswordDto.currentPassword,
       user.password,
@@ -79,132 +59,47 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
-  async createRecord(
-    userId: number,
-    createRecordDto: CreateRecordDto,
-  ): Promise<Report> {
-    const user = await this.findOne(userId);
-    const report = this.reportRepository.create({
-      ...createRecordDto,
-      patient: user,
-    });
-    return this.reportRepository.save(report);
+  async findPacients(): Promise<User[]> {
+    return this.userRepository.find({where: { type: "pacient" }});
   }
 
-  async readRecord(recordId: number): Promise<Report> {
-    const report = await this.reportRepository.findOne({
-      where: { id: recordId },
-    });
-    if (!report) {
-      throw new NotFoundException('Record not found');
+  async findPacient(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: id, type: "pacient" } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return report;
+    return user;
   }
 
-  async updateRecord(
-    recordId: number,
-    updateRecordDto: UpdateRecordDto,
-  ): Promise<Report> {
-    const report = await this.reportRepository.preload({
-      id: recordId,
-      ...updateRecordDto,
-    });
-    if (!report) {
-      throw new NotFoundException('Record not found');
-    }
-    return this.reportRepository.save(report);
-  }
-
-  async uploadDocument(recordId: number, file: any): Promise<Report> {
-    const report = await this.reportRepository.findOne({
-      where: { id: recordId },
-    });
-    if (!report) {
-      throw new NotFoundException('Record not found');
-    }
-    report.metadata = { ...report.metadata, ...file };
-    return this.reportRepository.save(report);
-  }
-
-  async deleteRecord(recordId: number): Promise<void> {
-    const result = await this.reportRepository.delete(recordId);
-    if (result.affected === 0) {
-      throw new NotFoundException('Record not found');
-    }
-  }
-
-  async manageRecordPermissions(
-    recordId: number,
-    roles: string[],
-  ): Promise<Report> {
-    const report = await this.reportRepository.findOne({
-      where: { id: recordId },
-    });
-    if (!report) {
-      throw new NotFoundException('Record not found');
-    }
-    report.roles = roles;
-    return this.reportRepository.save(report);
-  }
-
-  async createAppointment(
-    createAppointmentDto: CreateAppointmentDto,
-  ): Promise<Appointment> {
-    const doctor = await this.medicalRepository.findOne({
-      where: { id: createAppointmentDto.doctorId },
-    });
-    const patient = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.patientId },
+  async findDoctors(): Promise<any[]> {
+    const doctors = await this.userRepository.find({
+      where: { type: "doctor" }
     });
 
-    if (!doctor || !patient) {
-      throw new NotFoundException('Doctor or Patient not found');
-    }
-
-    const appointment = this.appointmentRepository.create({
-      ...createAppointmentDto,
-      doctor,
-      patient,
+    const doctorIds = doctors.map(doctor => doctor.id);
+    const appointments = await this.appointmentRepository.find({
+      where: { 
+        doctorId: In(doctorIds)
+      }
     });
 
-    return this.appointmentRepository.save(appointment);
-  }
-
-  async findAppointments(userId: number): Promise<Appointment[]> {
-    return this.appointmentRepository.find({
-      where: [{ doctor: { id: userId } }, { patient: { id: userId } }],
-      relations: ['doctor', 'patient'],
+    const doctorsWithAppointments = doctors.map(doctor => {
+      const doctorAppointments = appointments.filter(appointment => appointment.doctorId === doctor.id);
+      return { ...doctor, appointments: doctorAppointments };
     });
+
+    return doctorsWithAppointments;
   }
 
-  async cancelAppointment(appointmentId: number): Promise<void> {
-    const result = await this.appointmentRepository.delete(appointmentId);
-    if (result.affected === 0) {
-      throw new NotFoundException('Appointment not found');
-    }
-  }
-
-  async updateAppointment(
-    appointmentId: number,
-    updateAppointmentDto: UpdateAppointmentDto,
-  ): Promise<Appointment> {
-    const appointment = await this.appointmentRepository.preload({
-      id: appointmentId,
-      ...updateAppointmentDto,
+  async findDoctor(id: number): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id: id, type: "doctor" }
     });
-    if (!appointment) {
-      throw new NotFoundException('Appointment not found');
-    }
-    return this.appointmentRepository.save(appointment);
-  }
-
-  async findDoctors(): Promise<Medical[]> {
-    return this.medicalRepository.find();
   }
 
   async findDoctorSchedule(doctorId: number): Promise<any> {
-    const doctor = await this.medicalRepository.findOne({
-      where: { id: doctorId },
+    const doctor = await this.userRepository.findOne({
+      where: { id: doctorId, type: "doctor" },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
@@ -212,14 +107,28 @@ export class UserService {
     return doctor.business_hours;
   }
 
-  async rateDoctor(doctorId: number, rating: number): Promise<Medical> {
-    const doctor = await this.medicalRepository.findOne({
-      where: { id: doctorId },
+  async rateDoctor(doctorId: number, rating: number): Promise<User> {
+    const doctor = await this.userRepository.findOne({
+      where: { id: doctorId, type: "doctor" },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
     doctor.rating = rating;
-    return this.medicalRepository.save(doctor);
+    return this.userRepository.save(doctor);
+  }
+
+  async createBusinessHour(doctorId: number, createBusinessHourDTO: CreateBusinessHourDTO): Promise<User> {
+    const doctor = await this.userRepository.findOne({
+      where: { id: doctorId, type: "doctor" },
+    });
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    let business_hours = doctor.business_hours ? doctor.business_hours : [];
+    business_hours.push(createBusinessHourDTO);
+    doctor.business_hours = business_hours;
+    return this.userRepository.save(doctor);
   }
 }

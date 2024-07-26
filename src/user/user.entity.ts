@@ -21,23 +21,32 @@ export class User {
   email: string;
 
   @Column()
-  cpf: string; // hash
+  password: string;
 
   @Column()
-  password: string; // hash
+  type: string;
 
-  @CreateDateColumn()
+  @Column({ nullable: true })
+  cpf: string;
+
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ nullable: true })
+  CRM: string; // hash
+
+  @Column('jsonb', { nullable: true })
+  business_hours: any;
+
+  @Column('float', { nullable: true })
+  rating: number;
+
+  @CreateDateColumn({ type: 'timestamp',nullable: true })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp',nullable: true })
   updated_at: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   last_login: Date;
-
-  @Column()
-  status: string;
-
-  @Column({ nullable: true })
-  address_id: number;
 }

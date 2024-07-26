@@ -1,5 +1,3 @@
-import { Medical } from 'src/medical/medical.entity';
-import { User } from 'src/user/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity()
@@ -7,36 +5,27 @@ export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column()
   status: string;
 
-  @Column('jsonb')
+  @Column('jsonb', { nullable: true })
   event: {
     start_date: Date;
     end_date: Date;
-    attachments: { file_url: string; file_id: string }[];
-    creator: { id: number; email: string; displayName: string };
-    organizer: { id: number; email: string; displayName: string };
   };
 
-  @Column('jsonb')
-  meet: {
-    host: string;
-    code: string;
-    name: string;
-    url: string;
-    artifact: { transcription: string; record: string };
-  };
+  @Column({ nullable: true })
+  meet_url: string
 
-  @ManyToOne(() => Medical, (medical) => medical.id)
-  doctor: Medical;
+  @Column()
+  doctorId: number;
 
-  @ManyToOne(() => User, (user) => user.id)
-  patient: User;
+  @Column()
+  pacientId: number
 }

@@ -13,7 +13,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CreateMeetDto } from './dto/create-meet.dto';
 import { Appointment } from './appointment.entity';
 
-@Controller('appointments')
+@Controller('appointment')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
@@ -46,12 +46,29 @@ export class AppointmentController {
   remove(@Param('id') id: number): Promise<void> {
     return this.appointmentService.remove(id);
   }
+  
+  @Get('findByPacient/:id')
+  findByPacientId(@Param('id') id: number): Promise<Appointment> {
+    return this.appointmentService.findByPacientId(id);
+  }
 
-  @Post(':id/meet')
-  createMeet(
-    @Param('id') id: number,
-    @Body() createMeetDto: CreateMeetDto,
+  @Get('findByDoctor/:id')
+  findByDoctorId(@Param('id') id: number): Promise<Appointment> {
+    return this.appointmentService.findByDoctorId(id);
+  }
+
+  @Post('request')
+  requestAppointment(
+    @Body() createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
-    return this.appointmentService.createMeet(id, createMeetDto);
+    return this.appointmentService.requestAppointment(createAppointmentDto);
+  }
+
+  @Post('response/:id/:status')
+  responseAppointment(
+    @Param('id') id: number,
+    @Param('status') status: string,
+  ): Promise<Appointment> {
+    return this.appointmentService.responseAppointment(id, status);
   }
 }
