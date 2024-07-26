@@ -35,6 +35,7 @@ jobs:
           location: ${{ vars.ZONE }}
 
       - name: Setup Namespace
+        working-directory: k8s/
         run: |
             kubectl apply -f namespaces.yaml
             kubectl config set-context --current --namespace=med-connect
