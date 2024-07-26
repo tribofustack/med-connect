@@ -22,7 +22,7 @@ export class AppointmentService {
   async create(
     createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
-    const doctor = await this.medicalRepository.findOne({
+    const doctor = await this.userRepository.findOne({
       where: { id: createAppointmentDto.doctorId },
     });
     const patient = await this.userRepository.findOne({
