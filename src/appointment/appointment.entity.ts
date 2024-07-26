@@ -1,5 +1,3 @@
-import { File } from 'src/medical/file.entity';
-import { User } from 'src/user/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity()
@@ -34,9 +32,9 @@ export class Appointment {
     artifact: { transcription: string; record: string };
   };
 
-  @ManyToOne(() => File, (medical) => medical.id)
-  doctor: File;
+  @Column()
+  doctorId: number;
 
-  @ManyToOne(() => User, (user) => user.id)
-  patient: User;
+  @Column()
+  pacientId: number
 }

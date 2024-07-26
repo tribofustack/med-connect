@@ -6,7 +6,6 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CreateMeetDto } from './dto/create-meet.dto';
 import { User } from 'src/user/user.entity';
-import { File } from 'src/medical/file.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -15,8 +14,6 @@ export class AppointmentService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(File)
-    private medicalRepository: Repository<File>,
   ) {}
 
   async create(
@@ -34,24 +31,19 @@ export class AppointmentService {
     }
 
     const appointment = this.appointmentRepository.create({
-      ...createAppointmentDto,
-      doctor,
-      patient,
+      ...createAppointmentDto
     });
 
     return this.appointmentRepository.save(appointment);
   }
 
   async findAll(): Promise<Appointment[]> {
-    return this.appointmentRepository.find({
-      relations: ['doctor', 'patient'],
-    });
+    return this.appointmentRepository.find();
   }
 
   async findOne(id: number): Promise<Appointment> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
-      relations: ['doctor', 'patient'],
     });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
@@ -87,5 +79,25 @@ export class AppointmentService {
     const appointment = await this.findOne(id);
     appointment.meet = createMeetDto;
     return this.appointmentRepository.save(appointment);
+  }
+
+  async findByPacientId(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { pacientId: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appointment;
+  }
+
+  async findByDoctorId(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { doctorId: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appointment;
   }
 }

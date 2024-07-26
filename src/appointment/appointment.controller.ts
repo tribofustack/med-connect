@@ -54,4 +54,14 @@ export class AppointmentController {
   ): Promise<Appointment> {
     return this.appointmentService.createMeet(id, createMeetDto);
   }
+
+  @Get('findByPacient/:id')
+  findByPacientId(@Param('id') id: number): Promise<Appointment> {
+    return this.appointmentService.findByPacientId(id);
+  }
+
+  @Get('findByDoctor/:id')
+  findByDoctorId(@Param('id') id: number): Promise<Appointment> {
+    return this.appointmentService.findByDoctorId(id);
+  }
 }
