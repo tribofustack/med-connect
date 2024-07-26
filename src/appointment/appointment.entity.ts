@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Appointment {
@@ -21,11 +21,11 @@ export class Appointment {
   };
 
   @Column({ nullable: true })
-  meet_url: string
+  meet_url: string;
 
   @Column()
   doctorId: number;
 
   @Column()
-  pacientId: number
+  pacientId: number;
 }

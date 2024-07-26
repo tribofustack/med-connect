@@ -34,7 +34,7 @@ export class AuthService {
     }
 
     const payload = { email: user.email, sub: user.id };
-    
+
     try {
       const url = `${process.env.AUTH_URL}/consumers/${process.env.CONSUMER}/jwt`;
       const { data: response } = await axios.get(url);
@@ -42,12 +42,16 @@ export class AuthService {
 
       return this.generateToken({ payload }, secret, key);
     } catch (error) {
-      return this.jwtService.sign(payload)
+      return this.jwtService.sign(payload);
     }
   }
-  
+
   generateToken({ payload }, secret, key) {
-    const token = this.jwtService.sign(payload, {secret, keyid: key, expiresIn: '1d' });
+    const token = this.jwtService.sign(payload, {
+      secret,
+      keyid: key,
+      expiresIn: '1d',
+    });
     return token;
   }
 }

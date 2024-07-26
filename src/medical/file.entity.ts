@@ -30,7 +30,7 @@ export class File {
   created_at: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.id)
   user: User;

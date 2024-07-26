@@ -41,10 +41,10 @@ export class User {
   @Column('float', { nullable: true })
   rating: number;
 
-  @CreateDateColumn({ type: 'timestamp',nullable: true })
+  @CreateDateColumn({ type: 'timestamp', nullable: true })
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp',nullable: true })
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
 
   @Column({ type: 'timestamp', nullable: true })

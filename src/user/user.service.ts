@@ -11,7 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Appointment } from 'src/appointment/appointment.entity';
-import { In } from 'typeorm'; 
+import { In } from 'typeorm';
 import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class UserService {
     id: number,
     changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { id: id} });
+    const user = await this.userRepository.findOne({ where: { id: id } });
     const passwordMatch = await bcrypt.compare(
       changePasswordDto.currentPassword,
       user.password,
@@ -60,11 +60,13 @@ export class UserService {
   }
 
   async findPacients(): Promise<User[]> {
-    return this.userRepository.find({where: { type: "pacient" }});
+    return this.userRepository.find({ where: { type: 'pacient' } });
   }
 
   async findPacient(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id: id, type: "pacient" } });
+    const user = await this.userRepository.findOne({
+      where: { id: id, type: 'pacient' },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -73,18 +75,20 @@ export class UserService {
 
   async findDoctors(): Promise<any[]> {
     const doctors = await this.userRepository.find({
-      where: { type: "doctor" }
+      where: { type: 'doctor' },
     });
 
-    const doctorIds = doctors.map(doctor => doctor.id);
+    const doctorIds = doctors.map((doctor) => doctor.id);
     const appointments = await this.appointmentRepository.find({
-      where: { 
-        doctorId: In(doctorIds)
-      }
+      where: {
+        doctorId: In(doctorIds),
+      },
     });
 
-    const doctorsWithAppointments = doctors.map(doctor => {
-      const doctorAppointments = appointments.filter(appointment => appointment.doctorId === doctor.id);
+    const doctorsWithAppointments = doctors.map((doctor) => {
+      const doctorAppointments = appointments.filter(
+        (appointment) => appointment.doctorId === doctor.id,
+      );
       return { ...doctor, appointments: doctorAppointments };
     });
 
@@ -93,13 +97,13 @@ export class UserService {
 
   async findDoctor(id: number): Promise<User> {
     return this.userRepository.findOne({
-      where: { id: id, type: "doctor" }
+      where: { id: id, type: 'doctor' },
     });
   }
 
   async findDoctorSchedule(doctorId: number): Promise<any> {
     const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
+      where: { id: doctorId, type: 'doctor' },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
@@ -109,7 +113,7 @@ export class UserService {
 
   async rateDoctor(doctorId: number, rating: number): Promise<User> {
     const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
+      where: { id: doctorId, type: 'doctor' },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
@@ -118,15 +122,18 @@ export class UserService {
     return this.userRepository.save(doctor);
   }
 
-  async createBusinessHour(doctorId: number, createBusinessHourDTO: CreateBusinessHourDTO): Promise<User> {
+  async createBusinessHour(
+    doctorId: number,
+    createBusinessHourDTO: CreateBusinessHourDTO,
+  ): Promise<User> {
     const doctor = await this.userRepository.findOne({
-      where: { id: doctorId, type: "doctor" },
+      where: { id: doctorId, type: 'doctor' },
     });
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
 
-    let business_hours = doctor.business_hours ? doctor.business_hours : [];
+    const business_hours = doctor.business_hours ? doctor.business_hours : [];
     business_hours.push(createBusinessHourDTO);
     doctor.business_hours = business_hours;
     return this.userRepository.save(doctor);

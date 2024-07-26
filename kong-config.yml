@@ -1,0 +1,132 @@
+_format_version: "1.1"
+
+services:
+- name: ms_checkin_categories
+  url: http://ms_checkin:3001/products/category
+  routes:
+  - name: get-categories
+    methods: [GET]
+    paths:
+    - /categories
+    plugins:
+    - name: rate-limiting
+      config:
+        second: 3
+        minute: 5
+        hour: 10
+        policy: local
+    strip_path: true
+- name: ms_checkin
+  url: http://ms_checkin:3001
+  routes:
+  - name: customers
+    methods: [GET, POST]
+    paths:
+    - /customers
+    - /customers/document/(?<cpf>\d+)
+    - /customers/(?<id>\d+)
+    plugins:
+    - name: request-transformer
+      config:
+        add:
+          headers:
+          - "Content-Type: application/json"
+    strip_path: false
+  - name: products
+    paths:
+    - /products
+    - /products/(?<id>\d+)
+    - /products/category/(?<id>\d+)
+    plugins:
+    - name: request-transformer
+      config:
+        add:
+          headers:
+          - "Content-Type: application/json"
+    methods: [POST, PUT, DELETE, GET]
+    strip_path: false
+
+- name: ms_checkout
+  url: http://ms_checkout:3002
+  routes:
+  - name: orders
+    methods: [GET, POST]
+    paths:
+    - /orders
+    - /orders/(?<id>\d+)/prepare
+    - /orders/(?<id>\d+)/withdrawn
+    - /orders/customer/(?<id>\d+)
+    - /orders/(?<id>\d+)/status
+    plugins:
+    - name: request-transformer
+      config:
+        add:
+          headers:
+          - "Content-Type: application/json"
+    strip_path: false
+
+- name: ms_financial
+  url: http://ms_financial:3003
+  routes:
+  - name: payments
+    methods: [GET, POST, DELETE]
+    paths:
+    - /payments/order/(?<id>\d+)
+    - /payments/order/(?<id>\d+)/approve
+    - /payments/order/(?<id>\d+)/cancel
+    plugins:
+    - name: request-transformer
+      config:
+        add:
+          headers:
+          - "Content-Type: application/json"
+    strip_path: false
+
+- name: ms_auth
+  url: http://ms_auth:3000
+  routes:
+  - name: auth
+    methods: [POST]
+    paths:
+    - /customer/auth
+    plugins:
+    - name: rate-limiting
+      config:
+        second: 3
+        minute: 5
+        hour: 10
+        policy: local
+    - name: http-log
+      config:
+        http_endpoint: https://webhook.site/ad3a0bcc-25f8-491e-8c18-fae253167580
+        method: POST
+    strip_path: false
+
+consumers:
+- username: orderly
+  jwt_secrets:
+  - algorithm: HS256
+    secret: this_is_a_super_secret
+
+plugins:
+- name: jwt
+  service: ms_financial
+  enabled: true
+  config:
+    key_claim_name: kid
+    claims_to_verify:
+    - exp
+- name: jwt
+  service: ms_checkout
+  enabled: true
+  config:
+    key_claim_name: kid
+    claims_to_verify:
+    - exp
+- name: jwt
+  service: ms_checkin
+  enabled: true
+  config:
+    key_claim_name: kid
+    claims_to_verify:
+    - exp

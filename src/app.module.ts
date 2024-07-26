@@ -9,6 +9,8 @@ import { User } from './user/user.entity';
 import { Appointment } from './appointment/appointment.entity';
 import { File } from './medical/file.entity';
 
+const entities = [User, Appointment, File];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,18 +18,19 @@ import { File } from './medical/file.entity';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',
-        host: 'db', // docker postgres service
-        port: 5432,
-        username: 'postgres',
-        password: 'postgres',
-        database: 'postgres',
-        entities: [User, Appointment, File],
-        synchronize: true, // Set to false in production
-      }),
       inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities,
+        synchronize: configService.get<boolean>('DB_SYNC'),
+      }),
     }),
+    TypeOrmModule.forFeature(entities),
     AuthModule,
     UserModule,
     AppointmentModule,
