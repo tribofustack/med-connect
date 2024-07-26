@@ -1,25 +1,39 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({
+  name: 'auth',
+})
 export class Auth {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  access_token: string;
+  @Column({
+    type: 'varchar',
+    name: 'access_token',
+  })
+  accessToken: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   email: string;
 
-  @Column()
+  @Column({
+    name: 'email_confirmed_at',
+    type: 'timestamp',
+  })
+  emailConfirmedAt: Date;
+
+  @Column({ type: 'varchar' })
   document: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
-  @Column()
-  type: string;
+  @Column({ type: 'timestamp', name: 'password_expires_at' })
+  passwordExpiresAt: Date;
 
-  @Column()
-  MFA: boolean;
+  @Column({
+    type: 'enum',
+    enum: ['doctor', 'user'],
+  })
+  type: 'doctor' | 'user';
 }

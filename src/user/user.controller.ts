@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -18,7 +11,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  create(@Body() createUserDto: CreateUserDto): Promise<User | void> {
     return this.userService.create(createUserDto);
   }
 
@@ -26,7 +19,7 @@ export class UserController {
   update(
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<User | void> {
     return this.userService.update(id, updateUserDto);
   }
 
@@ -34,32 +27,32 @@ export class UserController {
   changePassword(
     @Param('id') id: number,
     @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<void> {
+  ): Promise<void | void> {
     return this.userService.changePassword(id, changePasswordDto);
   }
 
   @Get('pacients/')
-  findPacients(): Promise<User[]> {
+  findPacients(): Promise<User[] | void> {
     return this.userService.findPacients();
   }
 
   @Get('pacient/:id')
-  findPacient(@Param('id') id: number): Promise<User> {
+  findPacient(@Param('id') id: number): Promise<User | void> {
     return this.userService.findPacient(id);
   }
 
   @Get('doctors')
-  findDoctors(): Promise<User[]> {
+  findDoctors(): Promise<User[] | void> {
     return this.userService.findDoctors();
   }
 
   @Get('doctor/:id')
-  findDoctor(@Param('id') id: number): Promise<User> {
+  findDoctor(@Param('id') id: number): Promise<User | void> {
     return this.userService.findDoctor(id);
   }
 
   @Get('doctor/:id/schedule')
-  findDoctorSchedule(@Param('id') id: number): Promise<any> {
+  findDoctorSchedule(@Param('id') id: number): Promise<any | void> {
     return this.userService.findDoctorSchedule(id);
   }
 
@@ -67,15 +60,15 @@ export class UserController {
   rateDoctor(
     @Param('id') id: number,
     @Body('rating') rating: number,
-  ): Promise<User> {
+  ): Promise<User | void> {
     return this.userService.rateDoctor(id, rating);
   }
 
   @Post('doctor/businesshour/:id')
   createBusinessHour(
     @Param('id') id: number,
-    @Body() createBusinessHourDTO: CreateBusinessHourDTO
-  ): Promise<User> {
+    @Body() createBusinessHourDTO: CreateBusinessHourDTO,
+  ): Promise<User | void> {
     return this.userService.createBusinessHour(id, createBusinessHourDTO);
   }
 }

@@ -7,8 +7,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('health')
-    async checkHealth() {        
-        return { status: 'ok', success: true };
+  async checkHealth() {
+    return { status: 'ok', success: true };
   }
 
   @Post('login')

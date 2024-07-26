@@ -1,5 +1,4 @@
 import { Appointment } from 'src/appointment/appointment.entity';
-import { MedicalRecords } from 'src/medical/medical-records.entity';
 import {
   Entity,
   Column,
@@ -10,9 +9,9 @@ import {
 } from 'typeorm';
 
 @Entity({
-  name: 'users',
+  name: 'doctors',
 })
-export class User {
+export class Doctor {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,11 +36,23 @@ export class User {
   @Column({ type: 'varchar' })
   password: string; // hash
 
-  @Column({ nullable: false, type: 'varchar', length: '11' })
+  @Column({ nullable: true, type: 'varchar', length: '11' })
   cpf: string;
 
   @Column({ nullable: true, type: 'varchar' })
   address: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  crm: string; // hash
+
+  @Column({ type: 'timestamp', nullable: true, name: 'business_hours_start' })
+  businessHoursStart: Date;
+
+  @Column({ type: 'timestamp', nullable: true, name: 'business_hours_end' })
+  businessHoursEnd: Date;
+
+  @Column({ nullable: true, type: 'integer' })
+  rating: number;
 
   @Column({ type: 'timestamp', nullable: true, name: 'last_login' })
   lastLogin: Date;
@@ -50,11 +61,8 @@ export class User {
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true, name: 'updated_at' })
-  updated_at: Date;
+  updatedAt: Date;
 
-  @OneToMany(() => MedicalRecords, (mr) => mr.user)
-  medicalRecords: MedicalRecords[];
-
-  @OneToMany(() => Appointment, (ap) => ap.user)
+  @OneToMany(() => Appointment, (ap) => ap.doctor)
   appointments: Appointment[];
 }

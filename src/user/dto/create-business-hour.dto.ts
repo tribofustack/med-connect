@@ -1,6 +1,5 @@
 export class CreateBusinessHourDTO {
-    start_date: Date;
-    end_date: Date;
-    status: string;
+  start_date: Date;
+  end_date: Date;
+  status: string;
 }
-  
