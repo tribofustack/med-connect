@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-configmap
+  namespace: med-connect
+data:
+  RABBITMQ_ERLANG_COOKIE: "TRIBUFUSTACK"
+  RABBITMQ_DEFAULT_USER: "admin" # "${BROKER_USER}" 
+  RABBITMQ_DEFAULT_PASS: "admin" # "${BROKER_PASSWORD}"

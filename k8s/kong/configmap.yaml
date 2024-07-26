@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-configmap
+  namespace: med-connect
+data:
+  kong-config.yml: |
+    _format_version: "1.1"
+    services:
+    - name: med_api
+      url: http://api-service:3000
+      routes:
+      - name: users
+        methods: [GET, POST, DELETE]
+        paths:
+        - /users/(?<id>\d+)
+        - /users/(?<id>\d+)/approve
+        - /users/(?<id>\d+)/cancel
+        plugins:
+        - name: request-transformer
+          config:
+            add:
+              headers:
+              - "Content-Type: application/json"
+        strip_path: false
+
+    consumers:
+    - username: med-connect
+      jwt_secrets:
+      - algorithm: HS256
+        secret: ${TOKEN_SECRET}
+    plugins:
+    - name: jwt
+      service: med_api
+      enabled: true
+      config:
+        key_claim_name: kid
+        claims_to_verify:
+        - exp
