@@ -11,6 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { User } from './user.entity';
+import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
 
 @Controller('users')
 export class UserController {
@@ -29,13 +30,12 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Put(':type/:id/')
+  @Put(':id')
   changePassword(
     @Param('id') id: number,
-    @Param('type') type: string,
     @Body() changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    return this.userService.changePassword(id, type, changePasswordDto);
+    return this.userService.changePassword(id, changePasswordDto);
   }
 
   @Get('pacient/')
@@ -53,21 +53,29 @@ export class UserController {
     return this.userService.findDoctors();
   }
 
-  @Get('doctors/:id')
+  @Get('doctor/:id')
   findDoctor(@Param('id') id: number): Promise<User> {
     return this.userService.findDoctor(id);
   }
 
-  @Get('doctors/:doctorId/schedule')
-  findDoctorSchedule(@Param('doctorId') doctorId: number): Promise<any> {
-    return this.userService.findDoctorSchedule(doctorId);
+  @Get('doctor/:id/schedule')
+  findDoctorSchedule(@Param('id') id: number): Promise<any> {
+    return this.userService.findDoctorSchedule(id);
   }
 
-  @Put('doctors/:doctorId/rate')
+  @Put('doctor/:id/rate')
   rateDoctor(
-    @Param('doctorId') doctorId: number,
+    @Param('id') id: number,
     @Body('rating') rating: number,
   ): Promise<User> {
-    return this.userService.rateDoctor(doctorId, rating);
+    return this.userService.rateDoctor(id, rating);
+  }
+
+  @Post('doctor/:id/businesshour')
+  createBusinessHour(
+    @Param('id') id: number,
+    @Body() createBusinessHourDTO: CreateBusinessHourDTO
+  ): Promise<User> {
+    return this.userService.createBusinessHour(id, createBusinessHourDTO);
   }
 }

@@ -23,23 +23,11 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column()
   type: string;
 
   @Column({ nullable: true })
   cpf: string;
-
-  @CreateDateColumn({ type: 'timestamp',nullable: true })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: 'timestamp',nullable: true })
-  updated_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  last_login: Date;
-
-  @Column({ nullable: true })
-  status: string;
 
   @Column({ nullable: true })
   address_id: number;
@@ -52,4 +40,13 @@ export class User {
 
   @Column('float', { nullable: true })
   rating: number;
+
+  @CreateDateColumn({ type: 'timestamp',nullable: true })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp',nullable: true })
+  updated_at: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  last_login: Date;
 }

@@ -10,12 +10,17 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { Appointment } from 'src/appointment/appointment.entity';
+import { In } from 'typeorm'; 
+import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Appointment)
+    private appointmentRepository: Repository<Appointment>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -40,10 +45,9 @@ export class UserService {
 
   async changePassword(
     id: number,
-    type: string,
     changePasswordDto: ChangePasswordDto,
   ): Promise<void> {
-    const user = type == "doctor" ? await this.findPacient(id) : await this.findDoctor(id);
+    const user = await this.userRepository.findOne({ where: { id: id} });
     const passwordMatch = await bcrypt.compare(
       changePasswordDto.currentPassword,
       user.password,
@@ -67,10 +71,24 @@ export class UserService {
     return user;
   }
 
-  async findDoctors(): Promise<User[]> {
-    return this.userRepository.find({
+  async findDoctors(): Promise<any[]> {
+    const doctors = await this.userRepository.find({
       where: { type: "doctor" }
     });
+
+    const doctorIds = doctors.map(doctor => doctor.id);
+    const appointments = await this.appointmentRepository.find({
+      where: { 
+        doctorId: In(doctorIds)
+      }
+    });
+
+    const doctorsWithAppointments = doctors.map(doctor => {
+      const doctorAppointments = appointments.filter(appointment => appointment.doctorId === doctor.id);
+      return { ...doctor, appointments: doctorAppointments };
+    });
+
+    return doctorsWithAppointments;
   }
 
   async findDoctor(id: number): Promise<User> {
@@ -97,6 +115,17 @@ export class UserService {
       throw new NotFoundException('Doctor not found');
     }
     doctor.rating = rating;
+    return this.userRepository.save(doctor);
+  }
+
+  async createBusinessHour(doctorId: number, createBusinessHourDTO: CreateBusinessHourDTO): Promise<User> {
+    const doctor = await this.userRepository.findOne({
+      where: { id: doctorId, type: "doctor" },
+    });
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+    doctor.business_hours = createBusinessHourDTO;
     return this.userRepository.save(doctor);
   }
 }
