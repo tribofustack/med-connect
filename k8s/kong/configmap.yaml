@@ -8,7 +8,7 @@ data:
     _format_version: "1.1"
     services:
     - name: auth
-      url: http://med_connect_api:3000
+      url: http://api-service:3000
       routes:
       - name: auth_get
         methods: [GET]
@@ -24,7 +24,7 @@ data:
         - /auth/users
         strip_path: false
     - name: med_connect
-      url: http://med_connect_api:3000
+      url: http://api-service:3000
       routes:
       - name: doctors
         methods: [GET, PUT]
