@@ -6,12 +6,13 @@ import { User } from './user.entity';
 import { Appointment } from 'src/appointment/appointment.entity';
 import { MedicalRecords } from 'src/medical/medical-records.entity';
 import { Doctor } from './doctor.entity';
+import { BusinessHour } from './businessHour.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, MedicalRecords, Doctor, Appointment]),
+    TypeOrmModule.forFeature([User, MedicalRecords, Doctor, Appointment, BusinessHour]),
   ],
   providers: [UserService],
   controllers: [UserController],
 })
-export class UserModule {}
+export class UserModule { }

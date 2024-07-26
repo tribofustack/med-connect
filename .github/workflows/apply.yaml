@@ -35,8 +35,9 @@ jobs:
           location: ${{ vars.ZONE }}
 
       - name: Setup Namespace
+        working-directory: k8s/
         run: |
-            kubectl apply -f namespaces.yaml
+            kubectl apply -f namespace.yaml
             kubectl config set-context --current --namespace=med-connect
 
       - name: apply rabbitmq
@@ -53,8 +54,8 @@ jobs:
           TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
 
       - name: apply reverse-proxy
-        working-directory: infra/nginx/
-        run: kubectl apply -f k8s/
+        working-directory: k8s/
+        run: kubectl apply -f nginx/
 
       - name: apply configmap
         working-directory: k8s/api/

@@ -4,8 +4,9 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Doctor } from './doctor.entity';
+import { BusinessHour } from './businessHour.entity';
 import * as bcrypt from 'bcryptjs';
-import moment from 'moment';
+import * as moment from 'moment';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { RegisterBusinessHoursDto } from './dto/register-business-hours.dto';
 
@@ -32,7 +33,10 @@ export class UserService {
     private usersRepository: Repository<User>,
     @InjectRepository(Doctor)
     private doctorsRepository: Repository<Doctor>,
-  ) {}
+    @InjectRepository(BusinessHour)
+    private businessHoursRepository: Repository<BusinessHour>,
+
+  ) { }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     createUserRequiredFields.forEach((field) => {
@@ -79,11 +83,10 @@ export class UserService {
   }
 
   async findDoctors(): Promise<Partial<Doctor>[]> {
-    return this.doctorsRepository.find({
-      select: ['id', 'name', 'email', 'lastName', 'address'],
+    return this.businessHoursRepository.find({
+      select: ['id', 'doctorId', 'doctorName', 'businessHoursStart', 'businessHoursEnd'],
       where: {
-        businessHoursStart: Not(IsNull()),
-        businessHoursEnd: Not(IsNull()),
+        status: "aberto"
       },
     });
   }
@@ -97,7 +100,7 @@ export class UserService {
     });
     if (!doctor) throw new Error('Doctor not found');
 
-    const currentDate = moment().add(-3, 'hours');
+    const currentDate = moment().subtract(3, 'hours');
     console.log('\n currentDate', currentDate, '\n');
     const startDate = moment(registerBusinessHours.startDate);
     const endDate = moment(registerBusinessHours.endDate);
@@ -113,7 +116,19 @@ export class UserService {
       throw new Error('Invalid interval dates');
 
     const difference = startDate.diff(endDate, 'hours');
-    // appointment service
+
+
     console.log('\n diff', difference, '\n');
+
+    const businessHour = this.businessHoursRepository.create({
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      businessHoursStart: startDate.toDate(),
+      businessHoursEnd: endDate.toDate(),
+      status: 'aberto',
+    });
+
+    await this.businessHoursRepository.save(businessHour);
+    return businessHour;
   }
 }

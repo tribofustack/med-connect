@@ -7,11 +7,19 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { MedicalModule } from './medical/medical.module';
 import { User } from './user/user.entity';
 import { Doctor } from './user/doctor.entity';
+import { BusinessHour } from './user/businessHour.entity';
 import { Appointment } from './appointment/appointment.entity';
 import { MedicalRecords } from './medical/medical-records.entity';
 import { Auth } from './auth/auth.entity';
 
-const entities = [User, Doctor, Auth, Appointment, MedicalRecords];
+const entities = [
+  User,
+  Doctor,
+  Auth,
+  Appointment,
+  MedicalRecords,
+  BusinessHour,
+];
 
 @Module({
   imports: [

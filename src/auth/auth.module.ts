@@ -9,12 +9,13 @@ import { User } from 'src/user/user.entity';
 import { MedicalRecords } from 'src/medical/medical-records.entity';
 import { env } from 'process';
 import { Doctor } from 'src/user/doctor.entity';
+import { BusinessHour } from 'src/user/businessHour.entity';
 import { UserService } from 'src/user/user.service';
 import { Auth } from './auth.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Doctor, Auth, MedicalRecords]),
+    TypeOrmModule.forFeature([User, Doctor, Auth, MedicalRecords, BusinessHour]),
     PassportModule,
     JwtModule.register({
       secret: env.JWT_KEY,
@@ -24,4 +25,4 @@ import { Auth } from './auth.entity';
   providers: [AuthService, UserService, JwtStrategy],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

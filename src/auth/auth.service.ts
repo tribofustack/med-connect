@@ -136,9 +136,9 @@ export class AuthService {
       const { data: response } = await axios.get(url);
       const [{ key, secret }] = response.data;
 
-      const accesToken = this.generateToken(payload, secret, key);
+      const accessToken = this.generateToken(payload, secret, key);
 
-      return { accesToken };
+      return { accessToken };
     } catch (error: any) {
       throw new Error(error.message);
     }

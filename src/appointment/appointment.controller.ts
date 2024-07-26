@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { Appointment } from './appointment.entity';
 import { ResponseAppointmentDto } from './dto/response-appointment.dto';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
 @Controller('appointments')
 export class AppointmentController {
@@ -19,12 +20,12 @@ export class AppointmentController {
     return this.appointmentService.findByUserId(id);
   }
 
-  @Put(':id/request/users/:userId')
+  @Post('request/users/:userId')
   async request(
-    @Param('id') id: number,
     @Param('userId') userId: number,
+    @Body() CreateAppointment: CreateAppointmentDto,
   ): Promise<Partial<Appointment>> {
-    return this.appointmentService.request(id, userId);
+    return this.appointmentService.request(userId, CreateAppointment);
   }
 
   @Put(':id/response')

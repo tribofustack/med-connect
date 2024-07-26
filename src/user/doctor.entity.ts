@@ -37,7 +37,7 @@ export class Doctor {
   @Column({ type: 'varchar' })
   password: string; // hash
 
-  @Column({ nullable: true, type: 'varchar', length: '11' })
+  @Column({ nullable: true, type: 'varchar'})
   cpf: string;
 
   @Column({ nullable: true, type: 'varchar' })

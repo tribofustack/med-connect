@@ -26,28 +26,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-
-/**
-  autenticação -POST /auth
-  create users -POST /users
-  get appointments by doctorId - GET /appointments/doctors/:id
-  get appointments by userId - GET /appointments/users/:id
-  request appoinment - POST /appointments/request
-  create doctors - POST /doctors
-  create appointment (business_hours) - POST appointments/register
-  response appointment (approve business_hours request) - PUT /appointments/response
-  list doctors - GET /doctors
-
-  POST /auth
-
-  POST /users
-  
-  GET /appointments/doctors/:id
-  GET /appointments/users/:id
-  POST /appointments/register
-  PUT /appointments/request
-  PUT /appointments/response
-  
-  POST /doctors
-  GET /doctors
-*/
