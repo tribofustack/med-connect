@@ -81,7 +81,10 @@ export class UserService {
   async findDoctors(): Promise<Partial<Doctor>[]> {
     return this.doctorsRepository.find({
       select: ['id', 'name', 'email', 'lastName', 'address'],
-      where: { businessHoursStart: Not(IsNull()) },
+      where: {
+        businessHoursStart: Not(IsNull()),
+        businessHoursEnd: Not(IsNull()),
+      },
     });
   }
 
@@ -110,6 +113,7 @@ export class UserService {
       throw new Error('Invalid interval dates');
 
     const difference = startDate.diff(endDate, 'hours');
+    // appointment service
     console.log('\n diff', difference, '\n');
   }
 }

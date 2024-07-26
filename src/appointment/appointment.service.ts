@@ -55,6 +55,7 @@ export class AppointmentService {
     const appointmentStart = appointment.appointmentStart;
     const appointmentEnd = appointment.appointmentEnd;
     const description = `Solicitado na data de ${appointmentStart} a ${appointmentEnd}`;
+
     await this.appointmentRepository.save({ status, title, description });
 
     return {
@@ -101,6 +102,6 @@ export class AppointmentService {
   }
 
   async create(): Promise<any> {
-    // register - criar appointments ao inserir businessHour
+    // register - criar appointments ao inserir businessHours
   }
 }
