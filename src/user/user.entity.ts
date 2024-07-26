@@ -38,7 +38,7 @@ export class User {
   @Column({ type: 'varchar' })
   password: string; // hash
 
-  @Column({ nullable: false, type: 'varchar', length: '11' })
+  @Column({ nullable: false, type: 'varchar' })
   cpf: string;
 
   @Column({ nullable: true, type: 'varchar' })

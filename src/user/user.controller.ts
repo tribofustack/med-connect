@@ -6,7 +6,7 @@ import { RegisterBusinessHoursDto } from './dto/register-business-hours.dto';
 
 @Controller()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get('doctors')
   async findDoctors(): Promise<Partial<Doctor>[]> {
