@@ -43,3 +43,15 @@ docker compose up
 ```
 
 This will launch the application at port `80`.
+
+
+<br>
+
+<div align="center">
+
+
+[Postman Collection](https://documenter.getpostman.com/view/13574011/2sA3kYk1WQ)
+  
+</div>
+
+<br>
