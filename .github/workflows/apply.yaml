@@ -54,8 +54,8 @@ jobs:
           TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
 
       - name: apply reverse-proxy
-        working-directory: infra/nginx/
-        run: kubectl apply -f k8s/
+        working-directory: k8s/
+        run: kubectl apply -f nginx/
 
       - name: apply configmap
         working-directory: k8s/api/
