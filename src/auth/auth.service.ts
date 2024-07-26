@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/user/user.entity';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -33,8 +34,20 @@ export class AuthService {
     }
 
     const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }  
+    
+    try {
+      const url = `${process.env.AUTH_URL}/consumers/${process.env.CONSUMER}/jwt`;
+      const { data: response } = await axios.get(url);
+      const [{ key, secret }] = response.data;
+
+      return this.generateToken({ payload }, secret, key);
+    } catch (error) {
+      return this.jwtService.sign(payload)
+    }
+  }
+  
+  generateToken({ payload }, secret, key) {
+    const token = this.jwtService.sign(payload, {secret, keyid: key, expiresIn: '1d' });
+    return token;
+  }
 }
