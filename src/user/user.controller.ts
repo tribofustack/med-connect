@@ -13,7 +13,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { User } from './user.entity';
 import { CreateBusinessHourDTO } from './dto/create-business-hour.dto';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -38,7 +38,7 @@ export class UserController {
     return this.userService.changePassword(id, changePasswordDto);
   }
 
-  @Get('pacient/')
+  @Get('pacients/')
   findPacients(): Promise<User[]> {
     return this.userService.findPacients();
   }
@@ -71,7 +71,7 @@ export class UserController {
     return this.userService.rateDoctor(id, rating);
   }
 
-  @Post('doctor/:id/businesshour')
+  @Post('doctor/businesshour/:id')
   createBusinessHour(
     @Param('id') id: number,
     @Body() createBusinessHourDTO: CreateBusinessHourDTO

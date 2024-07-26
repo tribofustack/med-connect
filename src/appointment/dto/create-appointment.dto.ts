@@ -6,5 +6,5 @@ export class CreateAppointmentDto {
     end_date: Date;
   };
   doctorId: number;
-  patientId: number;
+  pacientId: number;
 }

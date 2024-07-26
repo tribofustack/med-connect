@@ -13,7 +13,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CreateMeetDto } from './dto/create-meet.dto';
 import { Appointment } from './appointment.entity';
 
-@Controller('appointments')
+@Controller('appointment')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 

@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { MedicalModule } from './medical/medical.module';
 import { User } from './user/user.entity';
+import { Appointment } from './appointment/appointment.entity';
 import { File } from './medical/file.entity';
 
 @Module({
@@ -22,7 +23,7 @@ import { File } from './medical/file.entity';
         username: 'postgres',
         password: 'postgres',
         database: 'postgres',
-        entities: [User, File],
+        entities: [User, Appointment, File],
         synchronize: true, // Set to false in production
       }),
       inject: [ConfigService],

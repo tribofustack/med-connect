@@ -60,11 +60,11 @@ export class UserService {
   }
 
   async findPacients(): Promise<User[]> {
-    return this.userRepository.find({where: { type: "doctor" }});
+    return this.userRepository.find({where: { type: "pacient" }});
   }
 
   async findPacient(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id: id, type: "doctor" } });
+    const user = await this.userRepository.findOne({ where: { id: id, type: "pacient" } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -125,7 +125,10 @@ export class UserService {
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
-    doctor.business_hours = createBusinessHourDTO;
+
+    let business_hours = doctor.business_hours ? doctor.business_hours : [];
+    business_hours.push(createBusinessHourDTO);
+    doctor.business_hours = business_hours;
     return this.userRepository.save(doctor);
   }
 }

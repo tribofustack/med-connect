@@ -22,11 +22,11 @@ export class AppointmentService {
     const doctor = await this.userRepository.findOne({
       where: { id: createAppointmentDto.doctorId },
     });
-    const patient = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.patientId },
+    const pacientId = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.pacientId },
     });
 
-    if (!doctor || !patient) {
+    if (!doctor || !pacientId) {
       throw new NotFoundException('Doctor or Patient not found');
     }
 
@@ -101,12 +101,12 @@ export class AppointmentService {
       throw new NotFoundException('Doctor not found');
     }
 
-    const patient = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.patientId },
+    const pacientId = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.pacientId },
     });
 
-    if (!patient) {
-      throw new NotFoundException('Patient not found');
+    if (!pacientId) {
+      throw new NotFoundException('Pacient not found');
     }
 
     const appointment = this.appointmentRepository.create({

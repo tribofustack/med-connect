@@ -1,11 +1,11 @@
 export class CreateUserDto {
+  type: string;
   name: string;
   last_name: string;
   email: string;
-  cpf?: string; // hash
   password: string; // hash
-  address_id?: number;
-  business_hours?: any;
+  cpf?: string; // hash
   CRM?: string; // hash
+  address?: string;
   rating?: number;
 }

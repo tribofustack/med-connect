@@ -30,7 +30,7 @@ export class User {
   cpf: string;
 
   @Column({ nullable: true })
-  address_id: number;
+  address: string;
 
   @Column({ nullable: true })
   CRM: string; // hash
