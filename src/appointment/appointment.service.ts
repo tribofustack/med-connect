@@ -6,7 +6,6 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { CreateMeetDto } from './dto/create-meet.dto';
 import { User } from 'src/user/user.entity';
-import { Medical } from 'src/medical/medical.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -15,43 +14,36 @@ export class AppointmentService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Medical)
-    private medicalRepository: Repository<Medical>,
   ) {}
 
   async create(
     createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
-    const doctor = await this.medicalRepository.findOne({
+    const doctor = await this.userRepository.findOne({
       where: { id: createAppointmentDto.doctorId },
     });
-    const patient = await this.userRepository.findOne({
-      where: { id: createAppointmentDto.patientId },
+    const pacientId = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.pacientId },
     });
 
-    if (!doctor || !patient) {
+    if (!doctor || !pacientId) {
       throw new NotFoundException('Doctor or Patient not found');
     }
 
     const appointment = this.appointmentRepository.create({
-      ...createAppointmentDto,
-      doctor,
-      patient,
+      ...createAppointmentDto
     });
 
     return this.appointmentRepository.save(appointment);
   }
 
   async findAll(): Promise<Appointment[]> {
-    return this.appointmentRepository.find({
-      relations: ['doctor', 'patient'],
-    });
+    return this.appointmentRepository.find();
   }
 
   async findOne(id: number): Promise<Appointment> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
-      relations: ['doctor', 'patient'],
     });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
@@ -80,12 +72,61 @@ export class AppointmentService {
     }
   }
 
-  async createMeet(
-    id: number,
-    createMeetDto: CreateMeetDto,
-  ): Promise<Appointment> {
-    const appointment = await this.findOne(id);
-    appointment.meet = createMeetDto;
+  async findByPacientId(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { pacientId: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appointment;
+  }
+
+  async findByDoctorId(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { doctorId: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appointment;
+  }
+
+  async requestAppointment(createAppointmentDto: CreateAppointmentDto): Promise<Appointment> {
+    const doctor = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.doctorId },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    const pacientId = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.pacientId },
+    });
+
+    if (!pacientId) {
+      throw new NotFoundException('Pacient not found');
+    }
+
+    const appointment = this.appointmentRepository.create({
+      ...createAppointmentDto
+    });
+
+    appointment.status = "Aguardando aprovacao";
+
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async responseAppointment(id: number, status: string): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    appointment.meet_url = "https://meet.google.com.br/acfdbe";
+    appointment.status = status;
     return this.appointmentRepository.save(appointment);
   }
 }

@@ -6,15 +6,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/user/user.entity';
-import { Medical } from 'src/medical/medical.entity';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Medical)
-    private medicalRepository: Repository<Medical>,
     private jwtService: JwtService,
   ) {}
 
@@ -27,29 +25,29 @@ export class AuthService {
     return null;
   }
 
-  async validateMedical(email: string, pass: string): Promise<any> {
-    const medical = await this.medicalRepository.findOne({ where: { email } });
-    if (medical && (await bcrypt.compare(pass, medical.password))) {
-      const { ...result } = medical;
-      return result;
-    }
-    return null;
-  }
-
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.validateUser(email, password);
-    const medical = await this.validateMedical(email, password);
 
-    if (!user && !medical) {
+    if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = user
-      ? { email: user.email, sub: user.id }
-      : { email: medical.email, sub: medical.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    const payload = { email: user.email, sub: user.id };
+    
+    try {
+      const url = `${process.env.AUTH_URL}/consumers/${process.env.CONSUMER}/jwt`;
+      const { data: response } = await axios.get(url);
+      const [{ key, secret }] = response.data;
+
+      return this.generateToken({ payload }, secret, key);
+    } catch (error) {
+      return this.jwtService.sign(payload)
+    }
+  }
+  
+  generateToken({ payload }, secret, key) {
+    const token = this.jwtService.sign(payload, {secret, keyid: key, expiresIn: '1d' });
+    return token;
   }
 }

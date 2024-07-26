@@ -1,51 +1,38 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { MedicalService } from './medical.service';
-import { CreateMedicalDto } from './dto/create-medical.dto';
-import { UpdateMedicalDto } from './dto/update-medical.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { UpdateBusinessHoursDto } from './dto/update-business-hours.dto';
-import { Medical } from './medical.entity';
+import { CreateFileDto } from './dto/create-file.dto';
+import { UpdateFileDto } from './dto/update-file.dto';
+import { File } from './file.entity';
 
-@Controller('medical')
+@Controller('medicals')
 export class MedicalController {
   constructor(private readonly medicalService: MedicalService) {}
 
   @Post()
-  create(@Body() createMedicalDto: CreateMedicalDto): Promise<Medical> {
-    return this.medicalService.create(createMedicalDto);
-  }
-
-  @Get()
-  findAll(): Promise<Medical[]> {
-    return this.medicalService.findAll();
+  create(@Body() createFileDto: CreateFileDto): Promise<File> {
+    return this.medicalService.create(createFileDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Medical> {
+  findAll(@Param('id') id: number): Promise<File[]> {
+    return this.medicalService.findAll(id);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: number): Promise<File> {
     return this.medicalService.findOne(id);
   }
 
-  @Put(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateMedicalDto: UpdateMedicalDto,
-  ): Promise<Medical> {
-    return this.medicalService.update(id, updateMedicalDto);
-  }
-
-  @Put(':id/password')
-  changePassword(
-    @Param('id') id: number,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<void> {
-    return this.medicalService.changePassword(id, changePasswordDto);
-  }
-
-  @Put(':id/business-hours')
-  updateBusinessHours(
-    @Param('id') id: number,
-    @Body() updateBusinessHoursDto: UpdateBusinessHoursDto,
-  ): Promise<Medical> {
-    return this.medicalService.updateBusinessHours(id, updateBusinessHoursDto);
+  @Delete(':id')
+  remove(@Param('id') id: number): Promise<void> {
+    return this.medicalService.remove(id);
   }
 }
