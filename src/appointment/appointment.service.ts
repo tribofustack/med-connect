@@ -100,4 +100,41 @@ export class AppointmentService {
     }
     return appointment;
   }
+
+  async requestAppointment(createAppointmentDto: CreateAppointmentDto): Promise<Appointment> {
+    const doctor = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.doctorId },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    const patient = await this.userRepository.findOne({
+      where: { id: createAppointmentDto.patientId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    const appointment = this.appointmentRepository.create({
+      ...createAppointmentDto
+    });
+
+    appointment.status = "Aguardando aprovacao";
+
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async responseAppointment(id: number, status: string): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id: id },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+    appointment.status = status;
+    return this.appointmentRepository.save(appointment);
+  }
 }

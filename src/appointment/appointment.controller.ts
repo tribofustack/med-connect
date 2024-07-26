@@ -64,4 +64,19 @@ export class AppointmentController {
   findByDoctorId(@Param('id') id: number): Promise<Appointment> {
     return this.appointmentService.findByDoctorId(id);
   }
+
+  @Post('request')
+  requestAppointment(
+    @Body() createAppointmentDto: CreateAppointmentDto,
+  ): Promise<Appointment> {
+    return this.appointmentService.requestAppointment(createAppointmentDto);
+  }
+
+  @Post('response/:id/:status')
+  responseAppointment(
+    @Param('id') id: number,
+    @Param('status') status: string,
+  ): Promise<Appointment> {
+    return this.appointmentService.responseAppointment(id, status);
+  }
 }
