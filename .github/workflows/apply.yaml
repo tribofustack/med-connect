@@ -36,7 +36,6 @@ jobs:
           fail-build: true
           severity-cutoff: low #low,medium,high
           output-format: json
-          path: .  
 
       - name: Auth GCloud
         uses: "google-github-actions/auth@v2.1.2"
