@@ -31,6 +31,8 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           image: "med-connect:latest"
+          fail-build: true
+          severity-cutoff: low #low,medium,high
 
       - name: Auth GCloud
         uses: "google-github-actions/auth@v2.1.2"
