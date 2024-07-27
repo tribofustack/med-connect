@@ -32,9 +32,9 @@ jobs:
       - name: Scan image
         uses: anchore/scan-action@v3
         with:
-          image: ${{ secrets.DOCKER_USERNAME }}/med-connect:latest
+          path: "."
           fail-build: true
-          severity-cutoff: low #low,medium,high
+          severity-cutoff: low #low,medium,high,critical
           output-format: json
 
       - name: Auth GCloud

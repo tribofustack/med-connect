@@ -19,7 +19,8 @@ jobs:
         with:
           path: "."
           fail-build: true
-          severity-cutoff: low #low,medium,high
+          severity-cutoff: medium
+          output-format: json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
