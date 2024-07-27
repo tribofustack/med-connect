@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-container
-        image: dealmachine/med-connect:1
+        image: dealmachine/med-connect:3
         workingDir: /usr/api
         ports:
         - containerPort: 3000
