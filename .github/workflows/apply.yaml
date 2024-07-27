@@ -30,9 +30,12 @@ jobs:
       - name: Scan image
         uses: anchore/scan-action@v3
         with:
-          image: "med-connect:latest"
+          image: "dealmachine/med-connect:latest"
           fail-build: true
           severity-cutoff: low #low,medium,high
+          output-format: json
+          only-fixed: true
+          path: .  
 
       - name: Auth GCloud
         uses: "google-github-actions/auth@v2.1.2"
