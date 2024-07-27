@@ -15,6 +15,7 @@ spec:
       containers:
       - name: api-container
         image: dealmachine/med-connect:latest
+        imagePullPolicy: Always
         workingDir: /usr/api
         ports:
         - containerPort: 3000
