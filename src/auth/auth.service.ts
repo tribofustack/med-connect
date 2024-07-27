@@ -78,7 +78,6 @@ export class AuthService {
   }
 
   async loginUser(loginDto: UserLoginDto) {
-    requiredFields.push('cpf');
     requiredFields.forEach((field) => {
       if (!loginDto[field]) {
         throw new BadRequestException(`Missing field ${field}`);
@@ -104,7 +103,6 @@ export class AuthService {
   }
 
   async loginDoctor(loginDto: DoctorLoginDto) {
-    requiredFields.push('crm');
     requiredFields.forEach((field) => {
       if (!loginDto[field]) {
         throw new BadRequestException(`Missing field ${field}`);
