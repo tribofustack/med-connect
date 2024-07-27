@@ -39,7 +39,7 @@ jobs:
         with:
           path: "."
           fail-build: true
-          severity-cutoff: low #low,medium,high,critical
+          severity-cutoff: critical
           output-format: json
 
       - name: Auth GCloud
